@@ -206,6 +206,7 @@ options = [
     ("format_item", "规范 \\item 格式", False),
     ("replace_equation_aligned", "将内嵌在 equation 中的 aligned 环境变成单独的 align 环境", False),
     ("repalce_all_markdown", "去掉所有Markdown特征", False),
+    ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}

@@ -1,4 +1,5 @@
 import re
+import pangu
 
 # TODO 处理title的bug
 # \subsection{C. Fubini-study Metric Tensor (Quantum natural gradient)}
@@ -7,9 +8,35 @@ import re
 
 # ------------------- 此处，用函数自定义各种复杂的规则 ------------------- 
 
+def add_space_between_cjk_and_english(text: str) -> str:
+    '''
+    在中日韩字符和英文或数字之间添加空格
+    '''
+    # 定义正则表达式模式
+    cjk_pattern = r'[\u4e00-\u9fff\u30a0-\u30ff\u3040-\u309f\uac00-\ud7af]'
+    english_pattern = r'[a-zA-Z0-9]'
+    
+    # 定义中日韩字符后和前的非字母字符
+    english_non_letter_after_cjk = r"-+'\"([¥$"
+    english_non_letter_before_cjk = r"-+;:'\"°%$)]"
+
+    # 构建头部和尾部的正则表达式
+    head_pattern = re.compile(f'({cjk_pattern})( *)({english_pattern}|[{re.escape(english_non_letter_after_cjk)}])')
+    tail_pattern = re.compile(f'({english_pattern}|[{re.escape(english_non_letter_before_cjk)}])( *)({cjk_pattern})')
+
+    # 在中日韩字符和英文或数字之间添加空格
+    def add_space(text: str) -> str:
+        text = head_pattern.sub(r'\1 \3', text)
+        text = tail_pattern.sub(r'\1 \3', text)
+        return text
+
+    return add_space(text)
+
+
 def remove_extra_newlines(content):
     # 将多个连续的空行替换为一个空行
-    content = re.sub(r'(\n\s*){2,}', '\n\n', content)
+    #  表达式参考 cf: line 24 in https://github.com/platers/obsidian-linter/blob/master/src/rules/consecutive-blank-lines.ts
+    content = re.sub(r'(\n([\t\v\f\r \u00a0\u2000-\u200b\u2028-\u2029\u3000]+)?){2,}', '\n\n', content)
     return content
 
 # ---------- 规范行内公式（inline math mode）内部格式 ---------- 
@@ -225,6 +252,9 @@ def replace_text(content, options):
         content = re.sub(r'\#+ ', '', content) # 删除所有##之类的title
         return content       
 
+    if options['add_space_between_cjk_and_english']:
+        content = add_space_between_cjk_and_english(content)
+        
     # ---------- [以防万一] 将多行空行变成单行空行 ----------
     if options['remove_extra_newlines']:
         content = remove_extra_newlines(content)
