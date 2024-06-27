@@ -1,5 +1,9 @@
 import re
 
+# TODO 处理title的bug
+# \subsection{C. Fubini-study Metric Tensor (Quantum natural gradient)}
+# -->
+# \subsection{C. Fubini-study Metric Tensor (quantum Natural Gradient)}
 
 # ------------------- 此处，用函数自定义各种复杂的规则 ------------------- 
 
