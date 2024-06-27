@@ -6,6 +6,10 @@ from text_processing import replace_text
 from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder
 from datetime import datetime
 
+'''如下打包成exe
+pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath ./ main.py
+'''
+
 # 定义元数据
 metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
