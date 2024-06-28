@@ -55,8 +55,10 @@ def format_math_display(match):
     text = re.sub(r'\\label\{.*?\}', '', text)
     # 去掉首尾空白字符
     text = text.strip()  
-    # 将内部连续的2个及以上的空白字符变成一个空格。这里暗示了，内部换行是被允许的。
-    text = re.sub(r'\s{2,}', ' ', text)  
+    # 将内部连续的2个及以上的空白字符(除了\n)变成一个空格。这里暗示了，内部换行是被允许的。
+    text = re.sub(r'[\t\v\f\r \u00a0\u2000-\u200b\u2028-\u2029\u3000]{2,}', ' ', text)
+    # 整理已有的换行符
+    text = re.sub(r'\s*\n\s*', '\n    ', text)
     # 重组文本，加入标签和格式化
     if label_text:
         label_text = label_text[0]  # 假设只有一个 \label
