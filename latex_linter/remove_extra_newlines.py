@@ -28,8 +28,8 @@ def remove_extra_newlines(content):
         ("Line1\n\n\n\nLine2", "Line1\n\nLine2"),
         ("Line1\n\n\n\n\nLine2", "Line1\n\nLine2"),
         ("Line1\n\nLine2", "Line1\n\nLine2"),
-        ("Line1\n\n \nLine2", "Line1\n\nLine2"),
-        ("Line1\n \n\nLine2", "Line1\n\nLine2"),
+        ("Line1\n\n   \nLine2", "Line1\n\nLine2"),
+        ("Line1\n \n    \n  Line2", "Line1\n\nLine2"),
     ]
 )
 def test_remove_extra_newlines(input_text, expected_output):

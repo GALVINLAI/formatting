@@ -1,9 +1,10 @@
 import re
 import pytest
 
+
 def format_math_display(match):
     """
-    将数学方程格式化为适合在 LaTeX 文档中显示的格式。
+    规范行间公式的内部格式。
     
     Args:
         match (re.Match): 正则表达式匹配对象，包含整个匹配文本。
@@ -16,15 +17,20 @@ def format_math_display(match):
     """
     # 提取方程内容
     text = match.group(2)
+
     # 提取并删除 \label 部分
     label_text = re.findall(r'\\label\{.*?\}', text)
     text = re.sub(r'\\label\{.*?\}', '', text)
+
     # 去掉首尾空白字符
-    text = text.strip()  
+    text = text.strip()
+
     # 将内部连续的2个及以上的空白字符(除了\n)变成一个空格。这里暗示了，内部换行是被允许的。
     text = re.sub(r'[\t\v\f\r \u00a0\u2000-\u200b\u2028-\u2029\u3000]{2,}', ' ', text)
+
     # 整理已有的换行符
     text = re.sub(r'\s*\n\s*', '\n    ', text)
+
     # 重组文本，加入标签和格式化
     if label_text:
         label_text = label_text[0]  # 假设只有一个 \label
@@ -33,21 +39,31 @@ def format_math_display(match):
         text = f'\n    {text}\n'
         
     # 组合结果并返回
-    # formatted_text = f'\n{match.group(1).strip()}{text}{match.group(3).strip()}\n'
     formatted_text = f'{match.group(1).strip()}{text}{match.group(3).strip()}\n'
+
     return formatted_text
     
-# ---------- 行间公式 1：规范 equation 环境内部格式 ----------
+
+# ---------- 规范 equation 环境 ----------
 def format_equations(content):
     # 特别注意，该匹配必须是 flags=re.DOTALL，即单行模式
     content = re.sub(r'(\s*\\begin\{equation\*?\})(.*?)(\\end\{equation\*?\}\s*)', format_math_display, content, flags=re.DOTALL)
     return content
 
-# ---------- 行间公式 2：规范 $$ 环境内部格式 ----------
+
+# ---------- 规范 $$ ... $$ 环境 ----------
 def format_dollars(content):
     # 特别注意，该匹配必须是 flags=re.DOTALL，即单行模式
     content = re.sub(r'(\$\$)(.*?)(\$\$)', format_math_display, content, flags=re.DOTALL)
     return content
+
+
+# ---------- 规范 \[ ... \ ] 环境 ----------
+def format_square_brackets(content):
+    # 特别注意，该匹配必须是 flags=re.DOTALL，即单行模式
+    content = re.sub(r'(\\\[)(.*?)(\\\])', format_math_display, content, flags=re.DOTALL)
+    return content
+
 
 # 测试用例
 @pytest.mark.parametrize(
@@ -77,6 +93,7 @@ def format_dollars(content):
 )
 def test_format_equations(input_text, expected_output):
     assert format_equations(input_text) == expected_output
+
 
 @pytest.mark.parametrize(
     "input_text, expected_output",

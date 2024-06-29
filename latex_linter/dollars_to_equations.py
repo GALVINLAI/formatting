@@ -1,9 +1,12 @@
 """
-行间公式 6：替换 $$ 为 equation 环境
+行间公式：替换 $$ ... $$ 为 equation 环境
 """
 
 import re
 import pytest
+
+# TODO 下面的核心逻辑有bug，如果注释里面有单个 $$，则会被替换为 equation 环境，需要改进。
+
 
 def dollars_to_equations(content):
     """

@@ -1,5 +1,5 @@
 """
-将 Markdown 的加粗/斜体/标题等变成 latex 对应物
+将 Markdown 的标题等变成 latex 对应物
 """
 
 import re

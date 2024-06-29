@@ -6,15 +6,11 @@ from text_processing import replace_text
 from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder
 from datetime import datetime
 
-'''如下打包成exe
-pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath ./ main.py
-'''
-
 # 定义元数据
 metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
     "author": "赖小戴",
-    "version": "1.1",
+    "version": "1.2",
     "update_date": datetime.now().strftime("%Y-%m-%d"),
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
@@ -69,6 +65,7 @@ def save_checkbox_states():
     保存复选框的状态到文件。
     """
     options = get_options()
+    options["auto_copy"] = auto_copy_checkbox_var.get()  # 将 auto_copy_checkbox_var 的状态加入保存的选项中
     with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
         json.dump(options, f, ensure_ascii=False, indent=4)
     messagebox.showinfo("保存状态", "复选框状态已保存。")
@@ -83,19 +80,30 @@ def load_checkbox_states():
             for key, value in options.items():
                 if key in checkbox_vars:
                     checkbox_vars[key].set(value)
+            # 加载 auto_copy 复选框状态
+            if "auto_copy" in options:
+                auto_copy_checkbox_var.set(options["auto_copy"])
     except FileNotFoundError:
         pass
 
 def update_output_text(event=None):
     """
-    获取输入文本框中的文本，根据选项进行处理，并将修改后的文本显示在输出文本框中，同时复制到剪贴板。
+    获取输入文本框中的文本，根据选项进行处理，并将修改后的文本显示在输出文本框中，同时复制到剪贴板（如果复选框勾选）。
     """
     input_text = input_text_widget.get("1.0", tk.END)  # 获取输入文本框的内容
     options = get_options()  # 获取选项
     modified_text = replace_text(input_text, options)  # 处理文本
     output_text_widget.delete("1.0", tk.END)  # 清空输出文本框
     output_text_widget.insert(tk.END, modified_text)  # 插入修改后的文本
-    pyperclip.copy(modified_text)  # 复制修改后的文本到剪贴板
+    if auto_copy_checkbox_var.get():  # 如果自动复制复选框被选中
+        pyperclip.copy(modified_text)  # 复制修改后的文本到剪贴板
+
+def copy_to_clipboard():
+    """
+    将输出文本框中的内容复制到剪贴板。
+    """
+    modified_text = output_text_widget.get("1.0", tk.END)
+    pyperclip.copy(modified_text)
 
 def process_files(file_paths):
     """
@@ -106,7 +114,7 @@ def process_files(file_paths):
         replace_text_in_files(file_paths, options)  # 处理文件
         messagebox.showinfo("完成", "所有选中的文件已完成修改。")
     else:
-        print("No file selected")
+        print("未选择文件")
 
 def open_and_replace_files():
     """
@@ -124,7 +132,7 @@ def open_and_replace_files_in_folder():
         file_paths = get_files_in_folder(folder_path)
         process_files(file_paths)
     else:
-        print("No folder selected")
+        print("未选择文件夹")
 
 def show_about():
     """
@@ -139,7 +147,7 @@ def show_about():
         f"资源地址：{metadata['resource_url']}\n"
         f"联系邮箱：{metadata['email']}"
     )
-    messagebox.showinfo("About", about_message)
+    messagebox.showinfo("关于", about_message)
 
 def create_button(frame, text, command, tooltip_text):
     """
@@ -155,13 +163,6 @@ def create_checkbox(frame, text, var):
     """
     checkbox = ttk.Checkbutton(frame, text=text, variable=var)
     checkbox.pack(anchor='w', pady=2)
-
-def create_radiobutton(frame, text, var, value):
-    """
-    创建一个单选按钮并添加到指定的框架中。
-    """
-    radiobutton = ttk.Radiobutton(frame, text=text, variable=var, value=value)
-    radiobutton.pack(anchor='w', pady=2)
 
 # 创建主窗口
 root = tk.Tk()
@@ -221,13 +222,20 @@ left_frame = ttk.LabelFrame(root, text="原始内容（比如GPT的回答）", p
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=20, font=("Consolas", 10))
 input_text_widget.pack(fill=tk.BOTH, expand=True)
-input_text_widget.bind("<<Modified>>", update_output_text)
 
 # 创建右侧文本框和标签的容器
-right_frame = ttk.LabelFrame(root, text="修改后的内容（会自动复制在剪切板）", padding=10)
+right_frame = ttk.LabelFrame(root, text="修改后的内容", padding=10)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=20, font=("Consolas", 10))
 output_text_widget.pack(fill=tk.BOTH, expand=True)
+
+# 添加复选框和按钮到右侧文本框容器
+auto_copy_checkbox_var = tk.BooleanVar()
+auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制到剪贴板", variable=auto_copy_checkbox_var)
+auto_copy_checkbox.pack(side=tk.LEFT, padx=5, pady=5)
+
+copy_button = ttk.Button(right_frame, text="复制到剪贴板", command=copy_to_clipboard)
+copy_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 def on_input_text_change(event):
     """

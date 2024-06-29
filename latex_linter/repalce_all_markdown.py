@@ -17,6 +17,7 @@ def repalce_all_markdown(content):
     """
     content = re.sub(r'\*\*', '', content)  # 删除所有 **
     content = re.sub(r'\#+ ', '', content)  # 删除所有 ## 之类的标题
+    
     return content
 
 # 测试用例
