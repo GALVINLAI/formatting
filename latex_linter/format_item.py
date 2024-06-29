@@ -18,6 +18,7 @@ def format_item(content):
     content = re.sub(r'(?<!\t)\s*\\item\s*', r'\n    \\item ', content)
     return content
 
+      
 # 测试用例
 @pytest.mark.parametrize(
     "input_text, expected_output",
@@ -27,7 +28,7 @@ def format_item(content):
         ("\n\\item Third item", "\n    \\item Third item"),
         ("\\item    Fourth item", "\n    \\item Fourth item"),
         ("Text without items.", "Text without items."),
-#        ("\\begin{itemize}\n\\item Item 1\n\\item  Item 2\n\\end{itemize}", "\\begin{itemize}\n\n    \\item Item 1\n\n    \\item Item 2\n\\end{itemize}")
+        ("\\begin{itemize}\n\\item Item 1\n\\item  Item 2\n\\end{itemize}", "\\begin{itemize}\n    \\item Item 1\n    \\item Item 2\n\\end{itemize}")
     ]
 )
 def test_format_item(input_text, expected_output):

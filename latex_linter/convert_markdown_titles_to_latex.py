@@ -34,8 +34,8 @@ def convert_markdown_titles_to_latex(content):
         ("## Subtitle", r"\subsection{Subtitle}"),
         ("### Subsubtitle", r"\subsubsection{Subsubtitle}"),
         ("#### Normal text", "Normal text"),
-#        # ("# Title\n## Subtitle\n### Subsubtitle\n#### Normal text", r"\section{Title}\n\subsection{Subtitle}\n\subsubsection{Subsubtitle}\nNormal text"),
-#        ("Some text\n# Title\nMore text", r"Some text\n\section{Title}\nMore text"),
+        ("# Title\n## Subtitle\n### Subsubtitle\n#### Normal text", "\section{Title}\n\subsection{Subtitle}\n\subsubsection{Subsubtitle}\nNormal text"),
+        ("Some text\n# Title\nMore text", "Some text\n\section{Title}\nMore text"),
         ("####### Too many hashes", "Too many hashes"),
     ]
 )
