@@ -86,7 +86,7 @@ def capitalize_titles(content):
             word if word.lower() in exceptions or word.isupper() or re.match(r'^[A-Z]{2,}$', word) else word.capitalize() for word in words[1:]
         ]
         capitalized_text = ' '.join(capitalized_words)
-        return match.group(1) + '{' + capitalized_text + '}\\n\\n'
+        return match.group(1) + '{' + capitalized_text + '}\n\n'
 
     # 注意，此行代码使用贪婪模式。有效的前提是，例如 \section{title} 后面另起一行。
     content = re.sub(r'((?:\\part|\\chapter|\\section|\\subsection|\\subsubsection|\\paragraph|\\subparagraph)\*?)\{(.*)\}', capitalize, content)
@@ -97,14 +97,14 @@ def capitalize_titles(content):
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
-        (r"\section{introduction}", r"\section{Introduction}\n\n"),
-        (r"\subsection{related work}", r"\subsection{Related Work}\n\n"),
-        (r"\subsubsection{the importance of AI}", r"\subsubsection{The Importance of AI}\n\n"),
-        (r"\section*{abstract}", r"\section*{Abstract}\n\n"),
-        (r"\chapter{summary and conclusions}", r"\chapter{Summary and Conclusions}\n\n"),
-        (r"\paragraph{this is a test}", r"\paragraph{This is a Test}\n\n"),
-        (r"\section{A simple test}", r"\section{A Simple Test}\n\n"),
-        (r"\section{NASA and the future}", r"\section{NASA and the Future}\n\n"),
+        ("\section{introduction}", "\section{Introduction}\n\n"),
+        ("\subsection{related work}", "\subsection{Related Work}\n\n"),
+        ("\subsubsection{the importance of AI}", "\subsubsection{The Importance of AI}\n\n"),
+        ("\section*{abstract}", "\section*{Abstract}\n\n"),
+        ("\chapter{summary and conclusions}", "\chapter{Summary and Conclusions}\n\n"),
+        ("\paragraph{this is a test}", "\paragraph{This is a Test}\n\n"),
+        ("\section{A simple test}", "\section{A Simple Test}\n\n"),
+        ("\section{NASA and the future}", "\section{NASA and the Future}\n\n"),
 #        (r"\subsection{use of iPhones in research}", r"\subsection{Use of iPhones in Research}\n\n"),
     ]
 )

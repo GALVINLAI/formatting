@@ -17,7 +17,7 @@ from latex_linter.replace_stars_with_textit import replace_stars_with_textit
 from latex_linter.square_brackets_to_dollars import square_brackets_to_dollars
 from latex_linter.square_brackets_to_equations import square_brackets_to_equations
 from latex_linter.format_math_display_multiply_lines import format_aligns
-
+from latex_linter.some_small_utilities import some_small_utilities 
 
 def replace_text(content, options):
     """
@@ -108,6 +108,9 @@ def replace_text(content, options):
     # ---------- 规范 align 环境 ----------
     if options['format_aligns']:
         content = format_aligns(content)
+
+    if options['some_small_utilities']:
+        content = some_small_utilities(content)
 
     # ====================================
     # 针对 Markdown 特性的功能
