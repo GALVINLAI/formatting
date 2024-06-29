@@ -190,12 +190,8 @@ options_frame = ttk.Frame(root)
 options_frame.pack(pady=10)
 
 options = [
+    ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
-    ("capitalize_titles", "规范化各级标题", True),
-    ("convert_markdown_titles_to_latex", "将 Markdown 的标题等变成 latex 对应物", False),
-    ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
-    ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
-    ("remove_asterisks_tags", "去掉 align 和 equation 环境中用于不显示tag的 * 号", False),
     ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
     ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
     ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境 【特别针对ChatGPT的回答】", False),
@@ -206,10 +202,14 @@ options = [
     ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
     ("square_brackets_to_equations", "行间公式：替换 \\[ ... \\] 为 equation 环境", False),
     ("dollars_to_equations", "行间公式：替换 $$ ... $$ 为 equation 环境", False),
-    ("format_item", "规范 \\item 格式", False),
     ("replace_equation_aligned", "将内嵌在 equation 中的 aligned 环境变成单独的 align 环境", False),
+    ("remove_asterisks_tags", "去掉 align 和 equation 环境中用于不显示tag的 * 号", False),
+    ("format_item", "规范 \\item 格式", False),
+    ("capitalize_titles", "规范化各级标题", True),
+    ("convert_markdown_titles_to_latex", "将 Markdown 的标题等变成 latex 对应物", False),
+    ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
+    ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
     ("repalce_all_markdown", "去掉所有Markdown特征", False),
-    ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
