@@ -44,7 +44,7 @@ def format_parentheses(content):
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
-        ("This is an inline math: $ a + b  = c $.", "This is an inline math: $a + b = c$."),
+        ("This is an inline math: $ a + b       = c $.", "This is an inline math: $a + b = c$."),
         ("Multiple spaces in $  x  +  y  =  z  $ equation.", "Multiple spaces in $x + y = z$ equation."),
         ("No spaces in $x+y=z$ should remain the same.", "No spaces in $x+y=z$ should remain the same."),
         ("Mixed content $a+b=c$ and $  x  +  y  =  z  $.", "Mixed content $a+b=c$ and $x + y = z$."),

@@ -16,6 +16,7 @@ from latex_linter.replace_stars_with_textbf import replace_stars_with_textbf
 from latex_linter.replace_stars_with_textit import replace_stars_with_textit
 from latex_linter.square_brackets_to_dollars import square_brackets_to_dollars
 from latex_linter.square_brackets_to_equations import square_brackets_to_equations
+from latex_linter.format_math_display_multiply_lines import format_aligns
 
 
 def replace_text(content, options):
@@ -50,7 +51,7 @@ def replace_text(content, options):
     # ---------- 行内公式：替换 \( ... \) 为 $ ... $ 环境 ----------
     if options['parentheses_to_single_dollar']:
         content = parentheses_to_single_dollar(content)
-        content = format_parentheses(content)
+        content = format_single_dollar(content)
 
     # ---------- 行间公式：规范 equation 环境 ----------
     if options['format_equations']:
@@ -103,6 +104,10 @@ def replace_text(content, options):
     # ---------- 将各级标题（例如 \section \subsection 等）的英文首字母大写，并去掉被包围文本的首尾空白字符，同时内部多个空字符变成一个空格 ----------
     if options['capitalize_titles']:
         content = capitalize_titles(content)
+
+    # ---------- 规范 align 环境 ----------
+    if options['format_aligns']:
+        content = format_aligns(content)
 
     # ====================================
     # 针对 Markdown 特性的功能

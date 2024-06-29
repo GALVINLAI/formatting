@@ -210,6 +210,7 @@ options = [
     ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
     ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
     ("repalce_all_markdown", "去掉所有Markdown特征", False),
+    ("format_aligns", "规范 align 环境", False),
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
@@ -220,13 +221,13 @@ for key, text, _ in options:
 # 创建左侧文本框和标签的容器
 left_frame = ttk.LabelFrame(root, text="原始内容（比如GPT的回答）", padding=10)
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=20, font=("Consolas", 10))
+input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 input_text_widget.pack(fill=tk.BOTH, expand=True)
 
 # 创建右侧文本框和标签的容器
 right_frame = ttk.LabelFrame(root, text="修改后的内容", padding=10)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=20, font=("Consolas", 10))
+output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 output_text_widget.pack(fill=tk.BOTH, expand=True)
 
 # 添加复选框和按钮到右侧文本框容器
