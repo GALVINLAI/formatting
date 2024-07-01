@@ -157,12 +157,12 @@ def create_button(frame, text, command, tooltip_text):
     button.pack(side=tk.LEFT, padx=5, pady=5)
     ToolTip(button, tooltip_text)  # 添加 tooltip
 
-def create_checkbox(frame, text, var):
+def create_checkbox(frame, text, var, row, col):
     """
-    创建一个复选框并添加到指定的框架中。
+    创建一个复选框并添加到指定的框架中，指定行和列。
     """
     checkbox = ttk.Checkbutton(frame, text=text, variable=var)
-    checkbox.pack(anchor='w', pady=2)
+    checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
 
 # 创建主窗口
 root = tk.Tk()
@@ -216,8 +216,10 @@ options = [
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
 
-for key, text, _ in options:
-    create_checkbox(options_frame, text, checkbox_vars[key])
+for idx, (key, text, _) in enumerate(options):
+    row = idx // 2  # 计算行数
+    col = idx % 2  # 计算列数
+    create_checkbox(options_frame, text, checkbox_vars[key], row, col)
 
 # 创建左侧文本框和标签的容器
 left_frame = ttk.LabelFrame(root, text="原始内容（比如GPT的回答）", padding=10)

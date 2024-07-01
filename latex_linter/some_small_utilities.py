@@ -7,13 +7,7 @@ import pytest
 
 def some_small_utilities(content):
     """
-    将 LaTeX 文档中 ^{T} 的格式替换为 ^{\top}，考虑各种空格情况。
-    
-    Args:
-        content (str): 包含 ^{T} 的文档内容。
-    
-    Returns:
-        str: 处理后的文档内容，其中 ^{T} 的格式已被替换为 ^{\top}。
+    众多小功能的集合
     """
     content = re.sub(r'\s*\\text\s*\{\s*([ \.,;:!]*)\s*\}', r'\1', content) # mathpix 总是喜欢搞出来  \text {, } 这样
     content = re.sub(r'\\text\s*\{', r'\\text{', content) # mathpix 总是喜欢搞出来  \text { some text } 这样 text后面有一个空格
