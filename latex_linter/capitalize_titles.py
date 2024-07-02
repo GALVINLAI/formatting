@@ -4,6 +4,9 @@
 
 import re
 import pytest
+from latex_linter.remove_extra_newlines import remove_extra_newlines
+
+# TODO 徐天一的latex代码。尝试定制化 环境的适配 https://raw.githubusercontent.com/tonyxty/fermat/master/CSA.tex
 
 def capitalize_titles(content):
     """
@@ -86,10 +89,14 @@ def capitalize_titles(content):
             word if word.lower() in exceptions or word.isupper() or re.match(r'^[A-Z]{2,}$', word) else word.capitalize() for word in words[1:]
         ]
         capitalized_text = ' '.join(capitalized_words)
-        return match.group(1) + '{' + capitalized_text + '}\n\n'
+
+        begin = re.sub(r'\s*', '', match.group(1).strip())
+
+        return '\n' + begin + '{' + capitalized_text + '}\n\n'
 
     # 注意，此行代码使用贪婪模式。有效的前提是，例如 \section{title} 后面另起一行。
-    content = re.sub(r'((?:\\part|\\chapter|\\section|\\subsection|\\subsubsection|\\paragraph|\\subparagraph)\*?)\{(.*)\}', capitalize, content)
+    content = re.sub(r'(\s*(?:\\part|\\chapter|\\section|\\subsection|\\subsubsection|\\paragraph|\\subparagraph)\s*\*?\s*)\{(.*)\}\s*', capitalize, content)
+    content = remove_extra_newlines(content)
 
     return content
 
@@ -97,14 +104,14 @@ def capitalize_titles(content):
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
-        ("\section{introduction}", "\section{Introduction}\n\n"),
-        ("\subsection{related work}", "\subsection{Related Work}\n\n"),
-        ("\subsubsection{the importance of AI}", "\subsubsection{The Importance of AI}\n\n"),
-        ("\section*{abstract}", "\section*{Abstract}\n\n"),
-        ("\chapter{summary and conclusions}", "\chapter{Summary and Conclusions}\n\n"),
-        ("\paragraph{this is a test}", "\paragraph{This is a Test}\n\n"),
-        ("\section{A simple test}", "\section{A Simple Test}\n\n"),
-        ("\section{NASA and the future}", "\section{NASA and the Future}\n\n"),
+        ("\section{introduction}", "\n\section{Introduction}\n\n"),
+        ("  \subsection {related work}  ", "\n\subsection{Related Work}\n\n"),
+        ("  \subsubsection *  {the importance of AI}", "\n\subsubsection*{The Importance of AI}\n\n"),
+        ("\section*{abstract}", "\n\section*{Abstract}\n\n"),
+        ("\chapter{summary and conclusions}", "\n\chapter{Summary and Conclusions}\n\n"),
+        ("\paragraph{this is a test}", "\n\paragraph{This is a Test}\n\n"),
+        ("\section{A simple test}", "\n\section{A Simple Test}\n\n"),
+        ("\section{NASA and the future}", "\n\section{NASA and the Future}\n\n"),
 #        (r"\subsection{use of iPhones in research}", r"\subsection{Use of iPhones in Research}\n\n"),
     ]
 )
