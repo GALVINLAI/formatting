@@ -10,7 +10,7 @@ from datetime import datetime
 metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
     "author": "赖小戴",
-    "version": "1.2",
+    "version": "1.3",
     "update_date": datetime.now().strftime("%Y-%m-%d"),
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
