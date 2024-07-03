@@ -194,11 +194,11 @@ options = [
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
     ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
     ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
-    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境 【特别针对ChatGPT的回答】", False),
+    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境 【适合ChatGPT的回答】", False),
     ("format_equations", "行间公式：规范 equation 环境", False),
     ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
     ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
-    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【特别针对ChatGPT的回答】", False),
+    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT的回答】", False),
     ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
     ("square_brackets_to_equations", "行间公式：替换 \\[ ... \\] 为 equation 环境", False),
     ("dollars_to_equations", "行间公式：替换 $$ ... $$ 为 equation 环境", False),
@@ -216,9 +216,11 @@ options = [
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
 
+half = len(options) // 2
+
 for idx, (key, text, _) in enumerate(options):
-    row = idx // 2  # 计算行数
-    col = idx % 2  # 计算列数
+    col = 0 if idx < half else 1
+    row = idx % half
     create_checkbox(options_frame, text, checkbox_vars[key], row, col)
 
 # 创建左侧文本框和标签的容器

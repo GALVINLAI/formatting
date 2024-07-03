@@ -92,7 +92,7 @@ def capitalize_titles(content):
 
         begin = re.sub(r'\s*', '', match.group(1).strip())
 
-        return '\n' + begin + '{' + capitalized_text + '}\n\n'
+        return '\n\n' + begin + '{' + capitalized_text + '}\n\n'
 
     # 注意，此行代码使用贪婪模式。有效的前提是，例如 \section{title} 后面另起一行。
     content = re.sub(r'(\s*(?:\\part|\\chapter|\\section|\\subsection|\\subsubsection|\\paragraph|\\subparagraph)\s*\*?\s*)\{(.*)\}\s*', capitalize, content)
