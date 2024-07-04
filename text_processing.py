@@ -18,6 +18,7 @@ from latex_linter.square_brackets_to_dollars import square_brackets_to_dollars
 from latex_linter.square_brackets_to_equations import square_brackets_to_equations
 from latex_linter.format_math_display_multiply_lines import format_aligns
 from latex_linter.some_small_utilities import some_small_utilities 
+from latex_linter.equations_to_equations_star import equations_to_equations_star 
 
 def replace_text(content, options):
     """
@@ -112,6 +113,9 @@ def replace_text(content, options):
     if options['some_small_utilities']:
         content = some_small_utilities(content)
 
+    if options['equations_to_equations_star']:
+        content = equations_to_equations_star(content)
+        
     # ====================================
     # 针对 Markdown 特性的功能
     # ====================================

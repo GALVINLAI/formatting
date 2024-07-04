@@ -212,6 +212,7 @@ options = [
     ("repalce_all_markdown", "去掉所有Markdown特征", False),
     ("format_aligns", "规范 align 环境", False),
     ("some_small_utilities", "some_small_utilities", False),
+    ("equations_to_equations_star", "替换 equation 为 equation* 环境，如果没有 label", False),
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
