@@ -105,6 +105,13 @@ def copy_to_clipboard():
     modified_text = output_text_widget.get("1.0", tk.END)
     pyperclip.copy(modified_text)
 
+def clear_text_boxes():
+    """
+    清空输入和输出文本框的内容。
+    """
+    input_text_widget.delete("1.0", tk.END)
+    output_text_widget.delete("1.0", tk.END)
+
 def process_files(file_paths):
     """
     根据选项处理选择的文件，并显示完成信息。
@@ -161,7 +168,7 @@ def create_checkbox(frame, text, var, row, col):
     """
     创建一个复选框并添加到指定的框架中，指定行和列。
     """
-    checkbox = ttk.Checkbutton(frame, text=text, variable=var)
+    checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
     checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
 
 # 创建主窗口
@@ -185,9 +192,32 @@ create_button(button_frame, "选择文件夹并修改所有md和tex文件", open
 create_button(button_frame, "保存当前复选框状态", save_checkbox_states, "下次启动时自动恢复")
 create_button(button_frame, "关于", show_about, "")
 
-# 创建选项框架并添加复选框
-options_frame = ttk.Frame(root)
-options_frame.pack(pady=10)
+# 创建一个带滚动条的框架
+container = ttk.Frame(root)
+container.pack(pady=12, fill='both', expand=True)
+
+canvas = tk.Canvas(container)
+scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview, width=20)
+options_frame = ttk.Frame(canvas)
+
+options_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
+
+canvas.create_window((0, 0), window=options_frame, anchor="nw")
+canvas.configure(yscrollcommand=scrollbar.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
+
+# 添加鼠标滚轮支持
+def on_mouse_wheel(event):
+    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+canvas.bind_all("<MouseWheel>", on_mouse_wheel)
 
 options = [
     ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
@@ -217,7 +247,7 @@ options = [
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
 
-half = len(options) // 2
+half = len(options) // 2 +1 
 
 for idx, (key, text, _) in enumerate(options):
     col = 0 if idx < half else 1
@@ -238,11 +268,14 @@ output_text_widget.pack(fill=tk.BOTH, expand=True)
 
 # 添加复选框和按钮到右侧文本框容器
 auto_copy_checkbox_var = tk.BooleanVar()
-auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制到剪贴板", variable=auto_copy_checkbox_var)
+auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制", variable=auto_copy_checkbox_var)
 auto_copy_checkbox.pack(side=tk.LEFT, padx=5, pady=5)
 
 copy_button = ttk.Button(right_frame, text="复制到剪贴板", command=copy_to_clipboard)
 copy_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+clear_button = ttk.Button(right_frame, text="清空文本框", command=clear_text_boxes)
+clear_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 def on_input_text_change(event):
     """
