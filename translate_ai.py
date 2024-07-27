@@ -2,9 +2,9 @@ import os
 from openai import OpenAI
 
 # 从环境变量中读取 API 密钥
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("DEEPSEEK_API_KEY")
 if not api_key:
-    raise ValueError("Please set the OPENAI_API_KEY environment variable.")
+    raise ValueError("Please set the DEEPSEEK_API_KEY environment variable.")
 
 client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
