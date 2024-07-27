@@ -1,6 +1,5 @@
 TEST 2
 
-
 ### Lemma 4.6 (Variance and Expectation)
 Let \(X\) be a random variable in \(\mathbb{R}^d\).
 

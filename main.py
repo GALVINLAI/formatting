@@ -2,23 +2,26 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import pyperclip
 import json
-from text_processing import replace_text
-from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder
+from text_processing import replace_text  # 你的自定义文本处理模块
+from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder  # 你的自定义文件操作模块
 from datetime import datetime
+from functools import partial
 
 # 定义元数据
 metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
     "author": "赖小戴",
-    "version": "1.3",
-    "update_date": datetime.now().strftime("%Y-%m-%d"),
+    "version": "1.4",
+    # "update_date": datetime.now().strftime("%Y-%m-%d"),
+    "update_date": "2024-07-27",
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
-    "email": "galvin.lai@outlook.com"
+    "email": "lai_zhijian@pku.edu.cn",
 }
 
 # 保存复选框状态的文件名
 CHECKBOX_STATE_FILE = "checkbox_states.json"
+LAST_STATE_NAME = "上一次关闭时状态"
 
 class ToolTip:
     def __init__(self, widget, text):
@@ -60,31 +63,49 @@ def get_options():
     """
     return {local_key: var.get() for local_key, var in checkbox_vars.items()}
 
-def save_checkbox_states():
+def save_checkbox_states(state_name=LAST_STATE_NAME):
     """
     保存复选框的状态到文件。
     """
     options = get_options()
-    options["auto_copy"] = auto_copy_checkbox_var.get()  # 将 auto_copy_checkbox_var 的状态加入保存的选项中
-    with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(options, f, ensure_ascii=False, indent=4)
-    messagebox.showinfo("保存状态", "复选框状态已保存。")
+    options["auto_copy"] = auto_copy_checkbox_var.get()
 
-def load_checkbox_states():
+    all_states = load_all_states()
+    all_states[state_name] = options
+
+    with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(all_states, f, ensure_ascii=False, indent=4)
+
+    update_state_menu()
+
+def load_checkbox_states(state_name=None, show_warning=False):
     """
     从文件加载复选框状态。
     """
     try:
         with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
-            options = json.load(f)
-            for key, value in options.items():
-                if key in checkbox_vars:
-                    checkbox_vars[key].set(value)
-            # 加载 auto_copy 复选框状态
-            if "auto_copy" in options:
-                auto_copy_checkbox_var.set(options["auto_copy"])
+            all_states = json.load(f)
+            if state_name and state_name in all_states:
+                options = all_states[state_name]
+                for key, value in options.items():
+                    if key in checkbox_vars:
+                        checkbox_vars[key].set(value)
+                if "auto_copy" in options:
+                    auto_copy_checkbox_var.set(options["auto_copy"])
+            elif show_warning:
+                messagebox.showwarning("警告", "状态名称无效或不存在。")
     except FileNotFoundError:
         pass
+
+def load_all_states():
+    """
+    加载所有保存的状态。
+    """
+    try:
+        with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
 
 def update_output_text(event=None):
     """
@@ -171,6 +192,46 @@ def create_checkbox(frame, text, var, row, col):
     checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
     checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
 
+def update_state_menu():
+    """
+    更新下拉菜单，显示所有保存的状态。
+    """
+    state_menu['menu'].delete(0, 'end')
+    all_states = load_all_states()
+    for state_name in all_states.keys():
+        state_menu['menu'].add_command(label=state_name, command=partial(load_checkbox_states, state_name, True))
+
+def open_save_state_popup():
+    """
+    打开一个弹出窗口，输入状态名称以保存当前状态。
+    """
+    popup = tk.Toplevel(root)
+    popup.title("保存状态")
+
+    tk.Label(popup, text="输入新状态名称:").pack(side=tk.LEFT, padx=5, pady=5)
+    state_name_entry = ttk.Entry(popup, width=20)
+    state_name_entry.pack(side=tk.LEFT, padx=5, pady=5)
+
+    def on_save():
+        state_name = state_name_entry.get()
+        if state_name:
+            all_states = load_all_states()
+            if state_name in all_states:
+                # 提示是否覆盖现有状态
+                if messagebox.askyesno("确认", f"状态 '{state_name}' 已存在。是否覆盖？"):
+                    save_checkbox_states(state_name)
+                    popup.destroy()
+                else:
+                    popup.destroy()
+            else:
+                save_checkbox_states(state_name)
+                popup.destroy()
+        else:
+            messagebox.showwarning("警告", "请提供一个状态名称。")
+
+    save_button = ttk.Button(popup, text="保存", command=on_save)
+    save_button.pack(side=tk.LEFT, padx=5, pady=5)
+
 # 创建主窗口
 root = tk.Tk()
 root.title(f"{metadata['title']} 版本: {metadata['version']} 更新日期：{metadata['update_date']}")
@@ -179,7 +240,7 @@ root.iconbitmap("icon.ico")
 
 # 设置样式
 style = ttk.Style()
-style.configure("TButton", padding=3, relief="flat", background="#ccc")
+style.configure("TButton", padding=1, relief="flat", background="#ccc")
 style.configure("TCheckbutton", padding=3)
 style.configure("TRadiobutton", padding=3)
 
@@ -187,9 +248,24 @@ style.configure("TRadiobutton", padding=3)
 button_frame = ttk.Frame(root)
 button_frame.pack(pady=10)
 
-create_button(button_frame, "选择md或tex文件并修改", open_and_replace_files, "支持批量选择")
-create_button(button_frame, "选择文件夹并修改所有md和tex文件", open_and_replace_files_in_folder, "含子文件夹")
-create_button(button_frame, "保存当前复选框状态", save_checkbox_states, "下次启动时自动恢复")
+# 创建批量修改文件或文件夹的下拉菜单
+bulk_menu_button = ttk.Menubutton(button_frame, text="批量修改文件或文件夹", direction="below")
+bulk_menu = tk.Menu(bulk_menu_button, tearoff=0)
+bulk_menu.add_command(label="选择md或tex文件并修改", command=open_and_replace_files)
+bulk_menu.add_command(label="选择文件夹并修改所有md和tex文件", command=open_and_replace_files_in_folder)
+bulk_menu_button["menu"] = bulk_menu
+bulk_menu_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+# 创建状态选择下拉菜单
+state_var = tk.StringVar(root)
+state_menu = ttk.OptionMenu(button_frame, state_var, "选择任务状态", *[])
+state_menu.pack(side=tk.LEFT, padx=5)
+update_state_menu()
+
+# 添加保存状态按钮
+save_button = ttk.Button(button_frame, text="保存并命名当前任务状态", command=open_save_state_popup)
+save_button.pack(side=tk.LEFT, padx=5)
+
 create_button(button_frame, "关于", show_about, "")
 
 # 创建一个带滚动条的框架
@@ -224,7 +300,7 @@ options = [
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
     ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
     ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
-    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境 【适合ChatGPT的回答】", False),
+    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT的回答】", False),
     ("format_equations", "行间公式：规范 equation 环境", False),
     ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
     ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
@@ -243,11 +319,13 @@ options = [
     ("format_aligns", "规范 align 环境", False),
     ("some_small_utilities", "some_small_utilities", False),
     ("equations_to_equations_star", "替换 equation 为 equation* 环境，如果没有 label", False),
+    ("format_for_zulip", "让行间，行内公式符合zulip语法", False)
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
 
-half = len(options) // 2 +1 
+# 根据 options 的长度是奇数还是偶数来决定是否需要加 1。
+half = len(options) // 2 if len(options) % 2 == 0 else len(options) // 2 + 1
 
 for idx, (key, text, _) in enumerate(options):
     col = 0 if idx < half else 1
@@ -287,7 +365,14 @@ def on_input_text_change(event):
 input_text_widget.bind("<<Modified>>", on_input_text_change)
 
 # 启动主循环前加载复选框状态
-load_checkbox_states()
+load_checkbox_states(LAST_STATE_NAME)
+
+# 窗口关闭时保存状态
+def on_closing():
+    save_checkbox_states(LAST_STATE_NAME)
+    root.destroy()
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # 启动主循环
 root.mainloop()
