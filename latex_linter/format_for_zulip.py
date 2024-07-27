@@ -17,9 +17,9 @@ def format_for_zulip(content):
     # 将所有被两个 $$ 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
     # 将所有被 \[ \] 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
     # 将所有被 equation 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
-    content = re.sub(r'\$\$\s*(.*?)\s*\$\$', r'```math\n\1\n```', content, flags=re.DOTALL)
-    content = re.sub(r'\\\[\s*(.*?)\s*\\\]', r'```math\n\1\n```', content, flags=re.DOTALL)
-    content = re.sub(r'\\begin\{equation\*?\}\s*(.*?)\s*\\end\{equation\*?\}', r'```math\n\1\n```', content, flags=re.DOTALL)
+    content = re.sub(r'\s*\$\$\s*(.*?)\s*\$\$\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
+    content = re.sub(r'\s*\\\[\s*(.*?)\s*\\\]\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
+    content = re.sub(r'\s*\\begin\{equation\*?\}\s*(.*?)\s*\\end\{equation\*?\}\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
     
     # zulip 的 markdown 语法中，只有两个 $$ 之间的内容会被识别为inline数学公式。
     content = re.sub(r'(?<!\$)\$\s*([^\$]+?)\s*\$', r'$$\1$$', content)
