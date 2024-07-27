@@ -10,7 +10,7 @@ from latex_linter.format_math_inline import format_single_dollar, format_parenth
 from latex_linter.parentheses_to_single_dollar import parentheses_to_single_dollar
 from latex_linter.remove_asterisks_tags import remove_asterisks_tags
 from latex_linter.remove_extra_newlines import remove_extra_newlines
-from latex_linter.repalce_all_markdown import repalce_all_markdown
+from latex_linter.replace_all_markdown import replace_all_markdown
 from latex_linter.replace_equation_aligned import replace_equation_aligned
 from latex_linter.replace_stars_with_textbf import replace_stars_with_textbf
 from latex_linter.replace_stars_with_textit import replace_stars_with_textit
@@ -138,7 +138,7 @@ def replace_text(content, options):
         content = replace_stars_with_textit(content)
 
     # ---------- 去掉所有 Markdown 特征 ----------
-    if options['repalce_all_markdown']:
-        content = repalce_all_markdown(content)
+    if options['replace_all_markdown']:
+        content = replace_all_markdown(content)
 
     return content

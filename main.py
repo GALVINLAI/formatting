@@ -315,7 +315,7 @@ options = [
     ("convert_markdown_titles_to_latex", "将 Markdown 的标题等变成 latex 对应物", False),
     ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
     ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
-    ("repalce_all_markdown", "去掉所有Markdown特征", False),
+    ("replace_all_markdown", "去掉所有Markdown特征", False),
     ("format_aligns", "规范 align 环境", False),
     ("some_small_utilities", "some_small_utilities", False),
     ("equations_to_equations_star", "替换 equation 为 equation* 环境，如果没有 label", False),

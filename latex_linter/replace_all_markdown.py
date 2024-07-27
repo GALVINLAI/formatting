@@ -5,7 +5,7 @@
 import re
 import pytest
 
-def repalce_all_markdown(content):
+def replace_all_markdown(content):
     """
     删除 LaTeX 文档中的 Markdown 格式，包括删除所有 ** 和 ## 之类的标题。
     
@@ -32,8 +32,8 @@ def repalce_all_markdown(content):
         ("### **Bold title**", "Bold title"),
     ]
 )
-def test_repalce_all_markdown(input_text, expected_output):
-    assert repalce_all_markdown(input_text) == expected_output
+def test_replace_all_markdown(input_text, expected_output):
+    assert replace_all_markdown(input_text) == expected_output
 
 # 运行测试
 if __name__ == "__main__":
