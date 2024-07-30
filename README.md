@@ -146,6 +146,10 @@ project/
 ```sh
 pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath ./ main.py
 ```
+或者直接在命令行中运行以下即可。
+```sh
+upexe
+```
 
 ## 贡献指南
 

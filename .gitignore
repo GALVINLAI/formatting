@@ -8,7 +8,7 @@ TODO
 *.exe
 *.spec
 *.json
-*.bat
+=======
 
 *.log
 *.pid

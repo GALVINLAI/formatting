@@ -12,8 +12,7 @@ metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
     "author": "赖小戴",
     "version": "1.4",
-    # "update_date": datetime.now().strftime("%Y-%m-%d"),
-    "update_date": "2024-07-27",
+    "update_date": "2024-07-30",
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
     "email": "lai_zhijian@pku.edu.cn",
@@ -92,6 +91,8 @@ def load_checkbox_states(state_name=None, show_warning=False):
                         checkbox_vars[key].set(value)
                 if "auto_copy" in options:
                     auto_copy_checkbox_var.set(options["auto_copy"])
+                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
+                update_state_menu()  # 更新菜单显示
             elif show_warning:
                 messagebox.showwarning("警告", "状态名称无效或不存在。")
     except FileNotFoundError:
@@ -118,6 +119,7 @@ def update_output_text(event=None):
     output_text_widget.insert(tk.END, modified_text)  # 插入修改后的文本
     if auto_copy_checkbox_var.get():  # 如果自动复制复选框被选中
         pyperclip.copy(modified_text)  # 复制修改后的文本到剪贴板
+    check_state_match()  # 检查当前状态是否匹配任何已保存的状态
 
 def copy_to_clipboard():
     """
@@ -191,6 +193,7 @@ def create_checkbox(frame, text, var, row, col):
     """
     checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
     checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
+    var.trace_add('write', on_checkbox_change)  # 添加 trace 方法
 
 def update_state_menu():
     """
@@ -198,8 +201,12 @@ def update_state_menu():
     """
     state_menu['menu'].delete(0, 'end')
     all_states = load_all_states()
+    current_state = CURRENT_STATE_VAR.get()
     for state_name in all_states.keys():
-        state_menu['menu'].add_command(label=state_name, command=partial(load_checkbox_states, state_name, True))
+        label = state_name
+        if state_name == current_state:
+            label = f"✓ {state_name}"  # 在当前状态前添加打勾标记
+        state_menu['menu'].add_command(label=label, command=partial(load_checkbox_states, state_name, True))
 
 def open_save_state_popup():
     """
@@ -220,11 +227,13 @@ def open_save_state_popup():
                 # 提示是否覆盖现有状态
                 if messagebox.askyesno("确认", f"状态 '{state_name}' 已存在。是否覆盖？"):
                     save_checkbox_states(state_name)
+                    CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
                     popup.destroy()
                 else:
                     popup.destroy()
             else:
                 save_checkbox_states(state_name)
+                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
                 popup.destroy()
         else:
             messagebox.showwarning("警告", "请提供一个状态名称。")
@@ -232,11 +241,38 @@ def open_save_state_popup():
     save_button = ttk.Button(popup, text="保存", command=on_save)
     save_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+def check_state_match():
+    """
+    检查当前复选框状态是否匹配任何已保存的状态。
+    如果不匹配，则清除当前状态。
+    """
+    options = get_options()
+    options["auto_copy"] = auto_copy_checkbox_var.get()
+    all_states = load_all_states()
+
+    for state_name, saved_options in all_states.items():
+        if options == saved_options:
+            CURRENT_STATE_VAR.set(state_name)
+            update_state_menu()
+            return
+
+    CURRENT_STATE_VAR.set("")  # 没有匹配的状态
+    update_state_menu()
+
+def on_checkbox_change(*args):
+    """
+    当复选框状态发生变化时调用的函数。
+    """
+    check_state_match()
+
 # 创建主窗口
 root = tk.Tk()
 root.title(f"{metadata['title']} 版本: {metadata['version']} 更新日期：{metadata['update_date']}")
 # 设置窗口图标
 root.iconbitmap("icon.ico")
+
+# 在创建主窗口后初始化 CURRENT_STATE_VAR
+CURRENT_STATE_VAR = tk.StringVar(root)
 
 # 设置样式
 style = ttk.Style()
