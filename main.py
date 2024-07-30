@@ -308,7 +308,7 @@ create_button(button_frame, "关于", show_about, "")
 container = ttk.Frame(root)
 container.pack(pady=12, fill='both', expand=True)
 
-canvas = tk.Canvas(container)
+canvas = tk.Canvas(container, height=300)
 scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview, width=20)
 options_frame = ttk.Frame(canvas)
 
@@ -329,7 +329,8 @@ scrollbar.pack(side="right", fill="y")
 def on_mouse_wheel(event):
     canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+canvas.bind("<Enter>", lambda event: canvas.bind_all("<MouseWheel>", on_mouse_wheel))
+canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
 options = [
     ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
@@ -368,14 +369,18 @@ for idx, (key, text, _) in enumerate(options):
     row = idx % half
     create_checkbox(options_frame, text, checkbox_vars[key], row, col)
 
-# 创建左侧文本框和标签的容器
-left_frame = ttk.LabelFrame(root, text="原始内容（比如GPT的回答）", padding=10)
+# 创建文本框和标签的容器
+text_frame = ttk.Frame(root)
+text_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+# 创建左侧文本框和标签
+left_frame = ttk.LabelFrame(text_frame, text="原始内容（比如GPT的回答）", padding=10)
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 input_text_widget.pack(fill=tk.BOTH, expand=True)
 
-# 创建右侧文本框和标签的容器
-right_frame = ttk.LabelFrame(root, text="修改后的内容", padding=10)
+# 创建右侧文本框和标签
+right_frame = ttk.LabelFrame(text_frame, text="修改后的内容", padding=10)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 output_text_widget.pack(fill=tk.BOTH, expand=True)
