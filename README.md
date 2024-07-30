@@ -106,6 +106,12 @@ python main.py
 
 如果左侧输入框变化时，右侧输出框没有反应。说明出了bug，请关闭重启。
 
+## 如果typora不能正常编译公式
+
+请在 `typora` 偏好设置中，请在 `Markdown` 的设置看是否与下图相同
+
+![typora_markdown_setting](https://github.com/GALVINLAI/formatting/blob/main/typora_markdown_setting.png)
+
 
 # 开发说明
 
