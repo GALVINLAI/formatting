@@ -1,4 +1,3 @@
-# 静态导入
 from latex_linter.add_space_between_cjk_and_english import add_space_between_cjk_and_english
 from latex_linter.capitalize_titles import capitalize_titles
 from latex_linter.convert_markdown_titles_to_latex import convert_markdown_titles_to_latex
