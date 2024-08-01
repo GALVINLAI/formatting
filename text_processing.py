@@ -19,6 +19,7 @@ from latex_linter.format_math_display_multiply_lines import format_aligns
 from latex_linter.some_small_utilities import some_small_utilities 
 from latex_linter.equations_to_equations_star import equations_to_equations_star 
 from latex_linter.format_for_zulip import format_for_zulip
+from latex_linter.new_feature_name import new_feature_name
 
 def replace_text(content, options):
     """
@@ -139,5 +140,9 @@ def replace_text(content, options):
     # ---------- 去掉所有 Markdown 特征 ----------
     if options['replace_all_markdown']:
         content = replace_all_markdown(content)
+
+    # ---------- 自定义的新功能（仅用做演示） ----------
+    if options['new_feature_name']:
+        content = new_feature_name(content)
 
     return content
