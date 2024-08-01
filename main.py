@@ -208,6 +208,9 @@ def update_state_menu():
             label = f"✓ {state_name}"  # 在当前状态前添加打勾标记
         state_menu['menu'].add_command(label=label, command=partial(load_checkbox_states, state_name, True))
 
+
+
+
 def open_save_state_popup():
     """
     打开一个弹出窗口，输入状态名称以保存当前状态。

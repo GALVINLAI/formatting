@@ -32,7 +32,7 @@ def translate_text(text, prompt):
 def contains_chinese(text):
     return re.search(r'[\u4e00-\u9fff]', text) is not None
 
-def deal_python_block(content):
+def deal_python_block(content, prompt):
     if content.startswith('```python'):
         content = content[len('```python'):].strip()
     if content.endswith('```'):
@@ -72,15 +72,26 @@ def translate_file(input_path, output_path, target_language, file_type):
     with open(input_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    if contains_chinese(content):
+    if contains_chinese(content, prompt):
         if file_type == 'markdown':
             prompt = f"将以下中文Markdown内容翻译为{target_language}。只返回翻译后的Markdown代码。"
         elif file_type == 'python':
             prompt = f"将下面代码脚本中的注释翻译为{target_language}。不要修改代码本身。只返回完全翻译的代码脚本。"
         
         print(f"Processing {file_type} file {input_path}")
-        translated_content = translate_text(content, prompt)
-        translated_content = deal_python_block(translated_content)
+
+        split_index = 212
+        lines = content.splitlines()
+        if len(lines) > 300:
+            # When the .py file has more than 300 lines, an error will be thrown and the user will be notified to manually specify the split line number:
+            first_half = "\n".join(lines[:split_index])
+            second_half = "\n".join(lines[split_index:])
+            translated_first_half = deal_python_block(translate_text(first_half))
+            translated_second_half = deal_python_block(translate_text(second_half))
+            translated_content = translated_first_half + "\n" + translated_second_half
+        else:
+            translated_content = deal_python_block(translate_text(content, prompt))
+
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(translated_content)
 
