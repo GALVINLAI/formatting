@@ -4,7 +4,10 @@ import re
 from openai import OpenAI
 
 '''
-自动将本仓库中的所有py，md文件翻译成指定语言。翻译好的文件会直接覆盖原文件。
+自动将本仓库中的所有py，md文件翻译成指定语言。
+
+警告!! 翻译好的文件会直接覆盖原文件。此过程不可逆!请先备份文件。
+
 注意：需要你自行注册并获得自己的deepseek API key。然后将其存放在环境变量中DEEPSEEK_API_KEY。
 或者使用其他LLM的API key。
 '''
