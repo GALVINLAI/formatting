@@ -72,7 +72,7 @@ def translate_file(input_path, output_path, target_language, file_type):
     with open(input_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    if contains_chinese(content, prompt):
+    if contains_chinese(content):
         if file_type == 'markdown':
             prompt = f"将以下中文Markdown内容翻译为{target_language}。只返回翻译后的Markdown代码。"
         elif file_type == 'python':
