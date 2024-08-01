@@ -142,9 +142,9 @@ project/
 
 **`text_processing.py`** 和 **`file_operations.py`** 文件包含具体的文本处理和文件操作函数，请根据项目需要进行定义。
 
-## 如何添加新功能
+## 如何添加自定义的新功能
 
-详见根目录下另一个md文件。
+详见根目录下另一个 `how_add_new_features.md` 文件。
 
 ## 构建可执行文件 `formatting.exe` （仅限 WINDOWS 系统）
 
@@ -153,7 +153,6 @@ project/
 pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath ./ main.py
 ```
 或者直接在双击 `get_exe.bat`。
-
 
 ## 贡献指南
 
