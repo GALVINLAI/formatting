@@ -32,7 +32,7 @@ def translate_text(text, prompt):
 def contains_chinese(text):
     return re.search(r'[\u4e00-\u9fff]', text) is not None
 
-def deal_python_block(content, prompt):
+def deal_python_block(content):
     if content.startswith('```python'):
         content = content[len('```python'):].strip()
     if content.endswith('```'):
