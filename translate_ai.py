@@ -86,8 +86,8 @@ def translate_file(input_path, output_path, target_language, file_type):
             # When the .py file has more than 300 lines, an error will be thrown and the user will be notified to manually specify the split line number:
             first_half = "\n".join(lines[:split_index])
             second_half = "\n".join(lines[split_index:])
-            translated_first_half = deal_python_block(translate_text(first_half))
-            translated_second_half = deal_python_block(translate_text(second_half))
+            translated_first_half = deal_python_block(translate_text(first_half, prompt))
+            translated_second_half = deal_python_block(translate_text(second_half, prompt))
             translated_content = translated_first_half + "\n" + translated_second_half
         else:
             translated_content = deal_python_block(translate_text(content, prompt))
