@@ -124,7 +124,7 @@ base_path = './'
 excluded_files = [
     'example.ipynb',
     'checkbox_states.json',
-    'tanslate_ai.py'
+    'translate_ai.py'
 ]
 
 process_files(base_path, target_language='英文')
