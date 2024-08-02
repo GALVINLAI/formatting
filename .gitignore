@@ -2,9 +2,7 @@ __pycache__/
 build/
 .git/
 .idea/
-translate_ai.py
 
-TODO
 
 *.exe
 *.spec
