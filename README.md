@@ -1,4 +1,8 @@
 
+LatexFormatting is a utility used to format LaTeX and Markdown files.
+For English version, please go to branch [main_en](https://github.com/GALVINLAI/formatting/tree/main_en).
+
+
 # 项目简介
 
 **LatexFormatting** 是一个用于格式化 LaTeX 和 Markdown 文件的实用工具。该工具提供了多种选项来规范化数学公式和文本格式，特别是对由 ChatGPT 生成的 LaTeX 公式进行处理。
