@@ -1,73 +1,73 @@
-# GUI功能日志
+# GUI Features Log
 
-版本 1.4 的日志是之前所有功能的总结。未来，新版本中新添的功能会单独记录。 
+The log for version 1.4 is a summary of all previous features. Going forward, new features added in future versions will be documented separately.
 
-## 版本 1.X (X>4)
+## Version 1.X (X>4)
 
-## 版本: 1.4
-更新日期：2024-07-30
-作者: 赖小戴
+## Version: 1.4
+Update Date: 2024-07-30
+Author: Lai Xiaodai
 
-### 概述
-LatexFormatting 是一个用于格式化LaTeX和Markdown文件的实用工具，具有丰富的GUI功能。此日志记录了该工具在版本1.4中的所有GUI功能。
+### Overview
+LatexFormatting is a utility tool for formatting LaTeX and Markdown files with a rich set of GUI features. This log documents all the GUI features of the tool in version 1.4.
 
-### 主窗口
-- **标题**: 显示应用程序名称和版本信息。
-- **图标**: 使用自定义图标 (`icon.ico`)。
+### Main Window
+- **Title**: Displays the application name and version information.
+- **Icon**: Uses a custom icon (`icon.ico`).
 
-### 菜单和按钮
-- **批量修改文件或文件夹菜单**:
-  - **选择md或tex文件并修改**: 打开文件选择对话框，选择并修改选中的文件。
-  - **选择文件夹并修改所有md和tex文件**: 打开文件夹选择对话框，选择并修改文件夹中的所有文件。
+### Menus and Buttons
+- **Batch Modify Files or Folders Menu**:
+  - **Select md or tex files and modify**: Opens a file selection dialog to choose and modify selected files.
+  - **Select a folder and modify all md and tex files**: Opens a folder selection dialog to choose and modify all files in the folder.
 
-- **状态选择下拉菜单**: 显示所有保存的状态，允许用户选择并加载状态。
+- **Status Selection Dropdown Menu**: Displays all saved statuses, allowing users to select and load a status.
 
-- **保存状态按钮**: 打开弹出窗口，输入状态名称并保存当前复选框状态。
+- **Save Status Button**: Opens a popup window to input a status name and save the current checkbox status.
 
-- **关于按钮**: 显示关于信息的对话框，包含工具的基本信息和作者联系信息。
+- **About Button**: Displays an about dialog with basic information about the tool and author contact information.
 
-### 文本框和容器
-- **左侧文本框**: 输入原始内容（如GPT的回答）。
-- **右侧文本框**: 显示修改后的内容。
+### Text Boxes and Containers
+- **Left Text Box**: Input the original content (e.g., GPT's response).
+- **Right Text Box**: Displays the modified content.
 
-### 复选框和选项
-提供以下选项以格式化LaTeX和Markdown文件：
-1. 在中日韩字符和英文或数字之间添加空格
-2. 将多行空行变成单行空行
-3. 行内公式：规范 `$ ... $` 环境
-4. 行内公式：规范 `\( ... \)`环境
-5. 行内公式：替换 `\( ... \)` 为 `$ ... $` 环境【适合ChatGPT的回答】
-6. 行间公式：规范 `equation` 环境
-7. 行间公式：规范 `$$ ... $$` 环境
-8. 行间公式：规范 `\[ ... \]` 环境
-9. 行间公式：替换 `\[ ... \]` 为 `$$ ... $$` 环境【适合ChatGPT的回答】
-10. 行间公式：替换 equation 为 `$$ ... $$` 环境
-11. 行间公式：替换 `\[ ... \]` 为 `equation` 环境
-12. 行间公式：替换 `$$ ... $$` 为 `equation` 环境
-13. 将内嵌在 `equation` 中的 `aligned` 环境变成单独的 `align` 环境
-14. 去掉 `align` 和 `equation` 环境中用于不显示tag的 * 号
-15. 规范 `\item` 格式
-16. 规范化各级标题
-17. 将 Markdown 的标题等变成 latex 对应物
-18. 将 Markdown 的 `**` 包围变成 `\textbf` 环境
-19. 将 Markdown 的 `*` 包围变成 `\textit` 环境
-20. 去掉所有Markdown特征
-21. 规范 `align` 环境
+### Checkboxes and Options
+Provides the following options to format LaTeX and Markdown files:
+1. Add spaces between Chinese, Japanese, and Korean characters and English or numbers
+2. Convert multiple blank lines into a single blank line
+3. Inline formulas: Standardize the `$ ... $` environment
+4. Inline formulas: Standardize the `\( ... \)` environment
+5. Inline formulas: Replace `\( ... \)` with `$ ... $` environment [suitable for ChatGPT's responses]
+6. Display formulas: Standardize the `equation` environment
+7. Display formulas: Standardize the `$$ ... $$` environment
+8. Display formulas: Standardize the `\[ ... \]` environment
+9. Display formulas: Replace `\[ ... \]` with `$$ ... $$` environment [suitable for ChatGPT's responses]
+10. Display formulas: Replace `equation` with `$$ ... $$` environment
+11. Display formulas: Replace `\[ ... \]` with `equation` environment
+12. Display formulas: Replace `$$ ... $$` with `equation` environment
+13. Convert `aligned` environments embedded in `equation` into separate `align` environments
+14. Remove the * used in `align` and `equation` environments to hide tags
+15. Standardize `\item` format
+16. Standardize headings at various levels
+17. Convert Markdown headings into corresponding LaTeX elements
+18. Convert Markdown's `**` enclosure into the `\textbf` environment
+19. Convert Markdown's `*` enclosure into the `\textit` environment
+20. Remove all Markdown features
+21. Standardize the `align` environment
 22. some_small_utilities
-23. 替换 `equation` 为 `equation* `环境，如果没有 label
-24. 让行间，行内公式符合 zulip 语法
+23. Replace `equation` with `equation*` environment if there is no label
+24. Make inline and display formulas conform to zulip syntax
 
-### 其他功能
-- **自动复制**: 修改后的内容自动复制到剪贴板。
-- **复制按钮**: 将输出文本框中的内容复制到剪贴板。
-- **清空按钮**: 清空输入和输出文本框的内容。
-- **输入文本框修改监听**: 检测输入文本框的修改，并触发更新输出文本框的内容。
+### Other Features
+- **Auto Copy**: Automatically copies the modified content to the clipboard.
+- **Copy Button**: Copies the content in the output text box to the clipboard.
+- **Clear Button**: Clears the content in the input and output text boxes.
+- **Input Text Box Modification Listener**: Detects modifications in the input text box and triggers updates in the output text box.
 
-### 状态管理
-- **保存复选框状态**: 保存当前复选框状态到文件。
-- **加载复选框状态**: 从文件加载复选框状态。
-- **更新状态菜单**: 更新下拉菜单，显示所有保存的状态。
-- **检查状态匹配**: 检查当前复选框状态是否匹配任何已保存的状态。
+### Status Management
+- **Save Checkbox Status**: Saves the current checkbox status to a file.
+- **Load Checkbox Status**: Loads the checkbox status from a file.
+- **Update Status Menu**: Updates the dropdown menu to display all saved statuses.
+- **Check Status Match**: Checks if the current checkbox status matches any saved status.
 
-### 窗口关闭事件
-- **保存状态**: 在窗口关闭时保存当前复选框状态。
+### Window Close Event
+- **Save Status**: Saves the current checkbox status when the window is closed.

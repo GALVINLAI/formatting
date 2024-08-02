@@ -1,5 +1,5 @@
 """
-行间公式：替换 \[ ... \] 为 equation 环境
+Inline equations: Replace \[ ... \] with equation environment
 """
 
 import re
@@ -7,19 +7,19 @@ import pytest
 
 def square_brackets_to_equations(content):
     """
-    将 LaTeX 文档中的 \\[ 和 \\] 替换为 equation 环境，并自动规范内部格式。
+    Replace \\[ and \\] in LaTeX documents with the equation environment and automatically format the content inside.
     
     Args:
-        content (str): 包含 \\[ 和 \\] 行间公式的文档内容。
+        content (str): The document content containing \\[ and \\] inline equations.
     
     Returns:
-        str: 处理后的文档内容，其中 \\[ 和 \\] 已被替换为 equation 环境。
+        str: The processed document content where \\[ and \\] have been replaced with the equation environment.
     """
     content = re.sub(r'\\\[', r'\\begin{equation}', content)
     content = re.sub(r'\\\]', r'\\end{equation}', content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -33,7 +33,6 @@ def square_brackets_to_equations(content):
 def test_square_brackets_to_equations(input_text, expected_output):
     assert square_brackets_to_equations(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

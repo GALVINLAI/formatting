@@ -3,21 +3,21 @@ import pytest
 
 def replace_stars_with_textit(text):
     """
-    将文本中的星号(*)及其包围的内容替换为LaTeX的\\textit{}格式。
+    Replace asterisks (*) and their enclosed content with LaTeX's \\textit{} format.
     
     Args:
-        text (str): 待处理的文本字符串。
+        text (str): The text string to be processed.
     
     Returns:
-        str: 处理后的文本字符串，其中星号(*)及其包围的内容被替换为LaTeX的\\textit{}格式。
+        str: The processed text string, where asterisks (*) and their enclosed content are replaced with LaTeX's \\textit{} format.
     
     """
-    # 使用lambda函数进行替换，将匹配的内容放入\\textit{}中
+    # Use a lambda function for replacement, placing the matched content inside \\textit{}
     replacement = lambda match: r"\textit{" + match.group(1) + "}"
     new_text = re.sub(r"\*(.*?)\*", replacement, text)
     return new_text
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -33,6 +33,6 @@ def replace_stars_with_textit(text):
 def test_replace_stars_with_textit(input_text, expected_output):
     assert replace_stars_with_textit(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

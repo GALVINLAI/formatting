@@ -4,38 +4,38 @@ import pytest
 
 def format_math_inline(match):
     """
-    规范行内公式的内部格式。
+    Standardize the internal format of inline equations.
     
     Args:
-        match (re.Match): 正则表达式匹配对象，包含整个匹配文本。
-            预期 match.group(1) 为方程前的内容。
-            预期 match.group(2) 为方程内容。
-            预期 match.group(3) 为方程后的内容。
+        match (re.Match): The regex match object containing the entire matched text.
+            Expected match.group(1) to be the content before the equation.
+            Expected match.group(2) to be the equation content.
+            Expected match.group(3) to be the content after the equation.
     
     Returns:
-        str: 格式化后的文本。
+        str: The formatted text.
     """
 
-    # 提取数学内容，并去掉首尾空白字符
+    # Extract the math content and strip leading and trailing whitespace characters
     text = match.group(2).strip()
 
-    # 将内部多个空白字符变成一个空格
+    # Replace multiple internal whitespace characters with a single space
     text = re.sub(r'\s+', ' ', text)
 
-    # 组合结果并返回
+    # Combine the result and return
     formatted_text = f'{match.group(1)}{text}{match.group(3)}'
 
     return formatted_text
 
 
-# ---------- 规范 $ ... $ 环境 ----------
+# ---------- Standardize $ ... $ environment ----------
 def format_single_dollar(content):
-    # 使用 (?<!\$) 避免匹配到 $$ 环境
+    # Use (?<!\$) to avoid matching the $$ environment
     content = re.sub(r'(?<!\$)(\$)([^\$]+?)(\$)', format_math_inline, content)
     return content
 
 
-# ---------- 规范 \( ... \) 环境 ----------
+# ---------- Standardize \( ... \) environment ----------
 def format_parentheses(content):
     content = re.sub(r'(\\\()(.+?)(\\\))', format_math_inline, content)
     return content

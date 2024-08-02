@@ -1,5 +1,5 @@
 """
-将 Markdown 的标题等变成 latex 对应物
+Convert Markdown titles to their LaTeX equivalents.
 """
 
 import re
@@ -7,26 +7,26 @@ import pytest
 
 def convert_markdown_titles_to_latex(content):
     """
-    将Markdown格式的标题转换为LaTeX格式的标题。
+    Convert Markdown-formatted titles to LaTeX-formatted titles.
     
     Args:
-        content (str): 包含Markdown标题的字符串。
+        content (str): A string containing Markdown titles.
     
     Returns:
-        str: 转换后包含LaTeX标题的字符串。
+        str: A string containing LaTeX titles after conversion.
     
     """
-    # 处理 # title -> \section{title}
+    # Handle # title -> \section{title}
     content = re.sub(r'^# (.+)$', r'\\section{\1}', content, flags=re.MULTILINE)
-    # 处理 ## title -> \subsection{title}
+    # Handle ## title -> \subsection{title}
     content = re.sub(r'^## (.+)$', r'\\subsection{\1}', content, flags=re.MULTILINE)  
-    # 处理 ### title -> \subsubsection{title}
+    # Handle ### title -> \subsubsection{title}
     content = re.sub(r'^### (.+)$', r'\\subsubsection{\1}', content, flags=re.MULTILINE)
-    # 处理 #### title -> normal text
+    # Handle #### title -> normal text
     content = re.sub(r'^#{4,} (.+)$', r'\1', content, flags=re.MULTILINE)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -42,6 +42,6 @@ def convert_markdown_titles_to_latex(content):
 def test_convert_markdown_titles_to_latex(input_text, expected_output):
     assert convert_markdown_titles_to_latex(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

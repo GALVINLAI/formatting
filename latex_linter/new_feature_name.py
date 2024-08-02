@@ -1,15 +1,15 @@
 """
-新功能的说明
+Description of the new feature
 """
 
 import re
 import pytest
 
 def new_feature_name(content):
-    # 实现代码
+    # Implementation code
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -20,6 +20,6 @@ def new_feature_name(content):
 def test_new_feature_name(input_text, expected_output):
     assert new_feature_name(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

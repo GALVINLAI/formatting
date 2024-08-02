@@ -2,25 +2,25 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import pyperclip
 import json
-from text_processing import replace_text  # 你的自定义文本处理模块
-from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder  # 你的自定义文件操作模块
+from text_processing import replace_text  # Your custom text processing module
+from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder  # Your custom file operations module
 from datetime import datetime
 from functools import partial
 
-# 定义元数据
+# Define metadata
 metadata = {
-    "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
-    "author": "赖小戴",
+    "title": "LatexFormatting (Latex Math Formula Source Code Formatter) [Under Continuous Development]",
+    "author": "Lai Xiaodai",
     "version": "1.4",
     "update_date": "2024-07-30",
-    "description": "用于格式化LaTeX和Markdown文件的实用工具。",
+    "description": "A utility tool for formatting LaTeX and Markdown files.",
     "resource_url": "https://github.com/GALVINLAI/formatting",
     "email": "lai_zhijian@pku.edu.cn",
 }
 
-# 保存复选框状态的文件名
+# Filename to save checkbox states
 CHECKBOX_STATE_FILE = "checkbox_states.json"
-LAST_STATE_NAME = "上一次关闭时状态"
+LAST_STATE_NAME = "Last Closed State"
 
 class ToolTip:
     def __init__(self, widget, text):
@@ -58,13 +58,13 @@ class ToolTip:
 
 def get_options():
     """
-    获取所有复选框的值，返回一个包含所有选项的字典。
+    Get the values of all checkboxes and return a dictionary containing all options.
     """
     return {local_key: var.get() for local_key, var in checkbox_vars.items()}
 
 def save_checkbox_states(state_name=LAST_STATE_NAME):
     """
-    保存复选框的状态到文件。
+    Save the states of the checkboxes to a file.
     """
     options = get_options()
     options["auto_copy"] = auto_copy_checkbox_var.get()
@@ -79,7 +79,7 @@ def save_checkbox_states(state_name=LAST_STATE_NAME):
 
 def load_checkbox_states(state_name=None, show_warning=False):
     """
-    从文件加载复选框状态。
+    Load the checkbox states from a file.
     """
     try:
         with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
@@ -91,16 +91,16 @@ def load_checkbox_states(state_name=None, show_warning=False):
                         checkbox_vars[key].set(value)
                 if "auto_copy" in options:
                     auto_copy_checkbox_var.set(options["auto_copy"])
-                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
-                update_state_menu()  # 更新菜单显示
+                CURRENT_STATE_VAR.set(state_name)  # Update the current state variable
+                update_state_menu()  # Update the menu display
             elif show_warning:
-                messagebox.showwarning("警告", "状态名称无效或不存在。")
+                messagebox.showwarning("Warning", "Invalid or non-existent state name.")
     except FileNotFoundError:
         pass
 
 def load_all_states():
     """
-    加载所有保存的状态。
+    Load all saved states.
     """
     try:
         with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
@@ -110,94 +110,94 @@ def load_all_states():
 
 def update_output_text(event=None):
     """
-    获取输入文本框中的文本，根据选项进行处理，并将修改后的文本显示在输出文本框中，同时复制到剪贴板（如果复选框勾选）。
+    Get the text from the input text box, process it according to the options, and display the modified text in the output text box, also copy to clipboard if the checkbox is checked.
     """
-    input_text = input_text_widget.get("1.0", tk.END)  # 获取输入文本框的内容
-    options = get_options()  # 获取选项
-    modified_text = replace_text(input_text, options)  # 处理文本
-    output_text_widget.delete("1.0", tk.END)  # 清空输出文本框
-    output_text_widget.insert(tk.END, modified_text)  # 插入修改后的文本
-    if auto_copy_checkbox_var.get():  # 如果自动复制复选框被选中
-        pyperclip.copy(modified_text)  # 复制修改后的文本到剪贴板
-    check_state_match()  # 检查当前状态是否匹配任何已保存的状态
+    input_text = input_text_widget.get("1.0", tk.END)  # Get the content of the input text box
+    options = get_options()  # Get the options
+    modified_text = replace_text(input_text, options)  # Process the text
+    output_text_widget.delete("1.0", tk.END)  # Clear the output text box
+    output_text_widget.insert(tk.END, modified_text)  # Insert the modified text
+    if auto_copy_checkbox_var.get():  # If the auto-copy checkbox is checked
+        pyperclip.copy(modified_text)  # Copy the modified text to the clipboard
+    check_state_match()  # Check if the current state matches any saved state
 
 def copy_to_clipboard():
     """
-    将输出文本框中的内容复制到剪贴板。
+    Copy the content of the output text box to the clipboard.
     """
     modified_text = output_text_widget.get("1.0", tk.END)
     pyperclip.copy(modified_text)
 
 def clear_text_boxes():
     """
-    清空输入和输出文本框的内容。
+    Clear the content of the input and output text boxes.
     """
     input_text_widget.delete("1.0", tk.END)
     output_text_widget.delete("1.0", tk.END)
 
 def process_files(file_paths):
     """
-    根据选项处理选择的文件，并显示完成信息。
+    Process the selected files according to the options and display a completion message.
     """
     if file_paths:
-        options = get_options()  # 获取选项
-        replace_text_in_files(file_paths, options)  # 处理文件
-        messagebox.showinfo("完成", "所有选中的文件已完成修改。")
+        options = get_options()  # Get the options
+        replace_text_in_files(file_paths, options)  # Process the files
+        messagebox.showinfo("Completed", "All selected files have been modified.")
     else:
-        print("未选择文件")
+        print("No files selected")
 
 def open_and_replace_files():
     """
-    打开文件选择对话框并处理选择的文件。
+    Open the file selection dialog and process the selected files.
     """
     file_paths = select_files()
     process_files(file_paths)
 
 def open_and_replace_files_in_folder():
     """
-    打开文件夹选择对话框并处理文件夹中的所有文件。
+    Open the folder selection dialog and process all files in the folder.
     """
     folder_path = select_folder()
     if folder_path:
         file_paths = get_files_in_folder(folder_path)
         process_files(file_paths)
     else:
-        print("未选择文件夹")
+        print("No folder selected")
 
 def show_about():
     """
-    显示关于信息的对话框。
+    Show an about information dialog.
     """
     about_message = (
         f"{metadata['title']}\n\n"
-        f"作者: {metadata['author']}\n"
-        f"版本: {metadata['version']}\n"
-        f"更新日期：{metadata['update_date']}\n\n"
+        f"Author: {metadata['author']}\n"
+        f"Version: {metadata['version']}\n"
+        f"Update Date: {metadata['update_date']}\n\n"
         f"{metadata['description']}\n\n"
-        f"资源地址：{metadata['resource_url']}\n"
-        f"联系邮箱：{metadata['email']}"
+        f"Resource URL: {metadata['resource_url']}\n"
+        f"Contact Email: {metadata['email']}"
     )
-    messagebox.showinfo("关于", about_message)
+    messagebox.showinfo("About", about_message)
 
 def create_button(frame, text, command, tooltip_text):
     """
-    创建一个按钮并添加到指定的框架中。
+    Create a button and add it to the specified frame.
     """
     button = ttk.Button(frame, text=text, command=command)
     button.pack(side=tk.LEFT, padx=5, pady=5)
-    ToolTip(button, tooltip_text)  # 添加 tooltip
+    ToolTip(button, tooltip_text)  # Add tooltip
 
 def create_checkbox(frame, text, var, row, col):
     """
-    创建一个复选框并添加到指定的框架中，指定行和列。
+    Create a checkbox and add it to the specified frame, specifying row and column.
     """
     checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
     checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
-    var.trace_add('write', on_checkbox_change)  # 添加 trace 方法
+    var.trace_add('write', on_checkbox_change)  # Add trace method
 
 def update_state_menu():
     """
-    更新下拉菜单，显示所有保存的状态。
+    Update the dropdown menu to show all saved states.
     """
     state_menu['menu'].delete(0, 'end')
     all_states = load_all_states()
@@ -205,20 +205,16 @@ def update_state_menu():
     for state_name in all_states.keys():
         label = state_name
         if state_name == current_state:
-            label = f"✓ {state_name}"  # 在当前状态前添加打勾标记
+            label = f"✓ {state_name}"  # Add a checkmark before the current state
         state_menu['menu'].add_command(label=label, command=partial(load_checkbox_states, state_name, True))
-
-
-
-
 def open_save_state_popup():
     """
-    打开一个弹出窗口，输入状态名称以保存当前状态。
+    Open a popup window to input a state name to save the current state.
     """
     popup = tk.Toplevel(root)
-    popup.title("保存状态")
+    popup.title("Save State")
 
-    tk.Label(popup, text="输入新状态名称:").pack(side=tk.LEFT, padx=5, pady=5)
+    tk.Label(popup, text="Enter new state name:").pack(side=tk.LEFT, padx=5, pady=5)
     state_name_entry = ttk.Entry(popup, width=20)
     state_name_entry.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -227,27 +223,27 @@ def open_save_state_popup():
         if state_name:
             all_states = load_all_states()
             if state_name in all_states:
-                # 提示是否覆盖现有状态
-                if messagebox.askyesno("确认", f"状态 '{state_name}' 已存在。是否覆盖？"):
+                # Prompt to overwrite existing state
+                if messagebox.askyesno("Confirm", f"State '{state_name}' already exists. Overwrite?"):
                     save_checkbox_states(state_name)
-                    CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
+                    CURRENT_STATE_VAR.set(state_name)  # Update current state variable
                     popup.destroy()
                 else:
                     popup.destroy()
             else:
                 save_checkbox_states(state_name)
-                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
+                CURRENT_STATE_VAR.set(state_name)  # Update current state variable
                 popup.destroy()
         else:
-            messagebox.showwarning("警告", "请提供一个状态名称。")
+            messagebox.showwarning("Warning", "Please provide a state name.")
 
-    save_button = ttk.Button(popup, text="保存", command=on_save)
+    save_button = ttk.Button(popup, text="Save", command=on_save)
     save_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 def check_state_match():
     """
-    检查当前复选框状态是否匹配任何已保存的状态。
-    如果不匹配，则清除当前状态。
+    Check if the current checkbox state matches any saved state.
+    If not, clear the current state.
     """
     options = get_options()
     options["auto_copy"] = auto_copy_checkbox_var.get()
@@ -259,55 +255,55 @@ def check_state_match():
             update_state_menu()
             return
 
-    CURRENT_STATE_VAR.set("")  # 没有匹配的状态
+    CURRENT_STATE_VAR.set("")  # No matching state
     update_state_menu()
 
 def on_checkbox_change(*args):
     """
-    当复选框状态发生变化时调用的函数。
+    Function called when the checkbox state changes.
     """
     check_state_match()
 
-# 创建主窗口
+# Create main window
 root = tk.Tk()
-root.title(f"{metadata['title']} 版本: {metadata['version']} 更新日期：{metadata['update_date']}")
-# 设置窗口图标
+root.title(f"{metadata['title']} Version: {metadata['version']} Update Date: {metadata['update_date']}")
+# Set window icon
 root.iconbitmap("icon.ico")
 
-# 在创建主窗口后初始化 CURRENT_STATE_VAR
+# Initialize CURRENT_STATE_VAR after creating the main window
 CURRENT_STATE_VAR = tk.StringVar(root)
 
-# 设置样式
+# Set style
 style = ttk.Style()
 style.configure("TButton", padding=1, relief="flat", background="#ccc")
 style.configure("TCheckbutton", padding=3)
 style.configure("TRadiobutton", padding=3)
 
-# 创建按钮框架并添加按钮
+# Create button frame and add buttons
 button_frame = ttk.Frame(root)
 button_frame.pack(pady=10)
 
-# 创建批量修改文件或文件夹的下拉菜单
-bulk_menu_button = ttk.Menubutton(button_frame, text="批量修改文件或文件夹", direction="below")
+# Create dropdown menu for bulk modification of files or folders
+bulk_menu_button = ttk.Menubutton(button_frame, text="Bulk Modify Files or Folders", direction="below")
 bulk_menu = tk.Menu(bulk_menu_button, tearoff=0)
-bulk_menu.add_command(label="选择md或tex文件并修改", command=open_and_replace_files)
-bulk_menu.add_command(label="选择文件夹并修改所有md和tex文件", command=open_and_replace_files_in_folder)
+bulk_menu.add_command(label="Select md or tex files and modify", command=open_and_replace_files)
+bulk_menu.add_command(label="Select folder and modify all md and tex files", command=open_and_replace_files_in_folder)
 bulk_menu_button["menu"] = bulk_menu
 bulk_menu_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-# 创建状态选择下拉菜单
+# Create state selection dropdown menu
 state_var = tk.StringVar(root)
-state_menu = ttk.OptionMenu(button_frame, state_var, "选择任务状态", *[])
+state_menu = ttk.OptionMenu(button_frame, state_var, "Select Task State", *[])
 state_menu.pack(side=tk.LEFT, padx=5)
 update_state_menu()
 
-# 添加保存状态按钮
-save_button = ttk.Button(button_frame, text="保存并命名当前任务状态", command=open_save_state_popup)
+# Add save state button
+save_button = ttk.Button(button_frame, text="Save and Name Current Task State", command=open_save_state_popup)
 save_button.pack(side=tk.LEFT, padx=5)
 
-create_button(button_frame, "关于", show_about, "")
+create_button(button_frame, "About", show_about, "")
 
-# 创建一个带滚动条的框架
+# Create a frame with scrollbar
 container = ttk.Frame(root)
 container.pack(pady=12, fill='both', expand=True)
 
@@ -328,7 +324,7 @@ canvas.configure(yscrollcommand=scrollbar.set)
 canvas.pack(side="left", fill="both", expand=True)
 scrollbar.pack(side="right", fill="y")
 
-# 添加鼠标滚轮支持
+# Add mouse wheel support
 def on_mouse_wheel(event):
     canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
@@ -336,36 +332,36 @@ canvas.bind("<Enter>", lambda event: canvas.bind_all("<MouseWheel>", on_mouse_wh
 canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
 options = [
-    ("new_feature_name", "自定义的新功能（仅用做演示）", False),
-    ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
-    ("remove_extra_newlines", "将多行空行变成单行空行", True),
-    ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
-    ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
-    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT的回答】", False),
-    ("format_equations", "行间公式：规范 equation 环境", False),
-    ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
-    ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
-    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT的回答】", False),
-    ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
-    ("square_brackets_to_equations", "行间公式：替换 \\[ ... \\] 为 equation 环境", False),
-    ("dollars_to_equations", "行间公式：替换 $$ ... $$ 为 equation 环境", False),
-    ("replace_equation_aligned", "将内嵌在 equation 中的 aligned 环境变成单独的 align 环境", False),
-    ("remove_asterisks_tags", "去掉 align 和 equation 环境中用于不显示tag的 * 号", False),
-    ("format_item", "规范 \\item 格式", False),
-    ("capitalize_titles", "规范化各级标题", True),
-    ("convert_markdown_titles_to_latex", "将 Markdown 的标题等变成 latex 对应物", False),
-    ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
-    ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
-    ("replace_all_markdown", "去掉所有Markdown特征", False),
-    ("format_aligns", "规范 align 环境", False),
+    ("new_feature_name", "Custom New Feature (for demonstration only)", False),
+    ("add_space_between_cjk_and_english", "Add space between CJK characters and English or numbers", True),
+    ("remove_extra_newlines", "Turn multiple blank lines into single blank lines", True),
+    ("format_single_dollar", "Inline formulas: Standardize $ ... $ environment", False),
+    ("format_parentheses", "Inline formulas: Standardize \\( ... \\) environment", False),
+    ("parentheses_to_single_dollar", "Inline formulas: Replace \\( ... \\) with $ ... $ environment [suitable for ChatGPT's responses]", False),
+    ("format_equations", "Block formulas: Standardize equation environment", False),
+    ("format_dollars", "Block formulas: Standardize $$ ... $$ environment", False),
+    ("format_square_brackets", "Block formulas: Standardize \\[ ... \\] environment", False),
+    ("square_brackets_to_dollars", "Block formulas: Replace \\[ ... \\] with $$ ... $$ environment [suitable for ChatGPT's responses]", False),
+    ("equations_to_dollars", "Block formulas: Replace equation with $$ ... $$ environment", False),
+    ("square_brackets_to_equations", "Block formulas: Replace \\[ ... \\] with equation environment", False),
+    ("dollars_to_equations", "Block formulas: Replace $$ ... $$ with equation environment", False),
+    ("replace_equation_aligned", "Replace aligned environment embedded in equation with separate align environment", False),
+    ("remove_asterisks_tags", "Remove * for no display tags in align and equation environments", False),
+    ("format_item", "Standardize \\item format", False),
+    ("capitalize_titles", "Standardize titles at all levels", True),
+    ("convert_markdown_titles_to_latex", "Convert Markdown titles to corresponding LaTeX elements", False),
+    ("replace_stars_with_textbf", "Replace Markdown's ** enclosure with \\textbf environment", False),
+    ("replace_stars_with_textit", "Replace Markdown's * enclosure with \\textit environment", False),
+    ("replace_all_markdown", "Remove all Markdown features", False),
+    ("format_aligns", "Standardize align environment", False),
     ("some_small_utilities", "some_small_utilities", False),
-    ("equations_to_equations_star", "替换 equation 为 equation* 环境，如果没有 label", False),
-    ("format_for_zulip", "让行间，行内公式符合zulip语法", False)
+    ("equations_to_equations_star", "Replace equation with equation* environment if no label", False),
+    ("format_for_zulip", "Make inline and block formulas conform to Zulip syntax", False)
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
 
-# 根据 options 的长度是奇数还是偶数来决定是否需要加 1。
+# Determine if the length of options is odd or even to decide if padding is needed.
 half = len(options) // 2 if len(options) % 2 == 0 else len(options) // 2 + 1
 
 for idx, (key, text, _) in enumerate(options):
@@ -373,51 +369,51 @@ for idx, (key, text, _) in enumerate(options):
     row = idx % half
     create_checkbox(options_frame, text, checkbox_vars[key], row, col)
 
-# 创建文本框和标签的容器
+# Create container for text boxes and labels
 text_frame = ttk.Frame(root)
 text_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-# 创建左侧文本框和标签
-left_frame = ttk.LabelFrame(text_frame, text="原始内容（比如GPT的回答）", padding=10)
+# Create left text box and label
+left_frame = ttk.LabelFrame(text_frame, text="Original Content (e.g., GPT's response)", padding=10)
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 input_text_widget.pack(fill=tk.BOTH, expand=True)
 
-# 创建右侧文本框和标签
-right_frame = ttk.LabelFrame(text_frame, text="修改后的内容", padding=10)
+# Create right text box and label
+right_frame = ttk.LabelFrame(text_frame, text="Modified Content", padding=10)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
 output_text_widget.pack(fill=tk.BOTH, expand=True)
 
-# 添加复选框和按钮到右侧文本框容器
+# Add checkboxes and buttons to the right text box container
 auto_copy_checkbox_var = tk.BooleanVar()
-auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制", variable=auto_copy_checkbox_var)
+auto_copy_checkbox = ttk.Checkbutton(right_frame, text="Automatically copy modified content", variable=auto_copy_checkbox_var)
 auto_copy_checkbox.pack(side=tk.LEFT, padx=5, pady=5)
 
-copy_button = ttk.Button(right_frame, text="复制到剪贴板", command=copy_to_clipboard)
+copy_button = ttk.Button(right_frame, text="Copy to Clipboard", command=copy_to_clipboard)
 copy_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-clear_button = ttk.Button(right_frame, text="清空文本框", command=clear_text_boxes)
+clear_button = ttk.Button(right_frame, text="Clear Text Boxes", command=clear_text_boxes)
 clear_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 def on_input_text_change(event):
     """
-    检测输入文本框的修改，并触发更新输出文本框的内容。
+    Detect changes in the input text box and trigger updates in the output text box.
     """
     input_text_widget.edit_modified(False)
     update_output_text()
 
 input_text_widget.bind("<<Modified>>", on_input_text_change)
 
-# 启动主循环前加载复选框状态
+# Load checkbox states before starting the main loop
 load_checkbox_states(LAST_STATE_NAME)
 
-# 窗口关闭时保存状态
+# Save state when window is closed
 def on_closing():
     save_checkbox_states(LAST_STATE_NAME)
     root.destroy()
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
-# 启动主循环
+# Start the main loop
 root.mainloop()

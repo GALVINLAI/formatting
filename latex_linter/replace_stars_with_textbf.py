@@ -6,21 +6,21 @@ import pytest
 
 def replace_stars_with_textbf(text):
     """
-    将文本中的双星号包围的内容替换为LaTeX中的\\textbf{}格式。
+    Replace content surrounded by double asterisks with \\textbf{} format in LaTeX.
     
     Args:
-        text (str): 待处理的文本字符串。
+        text (str): The input text string to be processed.
     
     Returns:
-        str: 处理后的文本字符串，其中双星号包围的内容已被替换为\\textbf{}格式。
+        str: The processed text string with content surrounded by double asterisks replaced with \\textbf{} format.
     
     """
-    # 使用lambda函数进行替换，将匹配的内容放入\textbf{}中
+    # Use a lambda function for replacement, placing the matched content inside \textbf{}
     replacement = lambda match: r"\textbf{" + match.group(1) + "}"
     new_text = re.sub(r"\*{2}(.*?)\*{2}", replacement, text)
     return new_text
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -36,6 +36,6 @@ def replace_stars_with_textbf(text):
 def test_replace_stars_with_textbf(input_text, expected_output):
     assert replace_stars_with_textbf(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

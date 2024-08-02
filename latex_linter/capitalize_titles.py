@@ -1,29 +1,29 @@
 """
-规范化各级标题
+Normalize titles at various levels
 """
 
 import re
 import pytest
 from latex_linter.remove_extra_newlines import remove_extra_newlines
 
-# TODO 徐天一的latex代码。尝试定制化 环境的适配 https://raw.githubusercontent.com/tonyxty/fermat/master/CSA.tex
+# TODO Xu Tianyi's LaTeX code. Attempt customization of environment adaptation https://raw.githubusercontent.com/tonyxty/fermat/master/CSA.tex
 
 def capitalize_titles(content):
     """
-    将给定的LaTeX文档内容中的标题（如\\part, \\chapter, \\section等）进行首字母大写处理。
+    Capitalize the first letter of titles in a given LaTeX document content (such as \\part, \\chapter, \\section, etc.).
     
     Args:
-        content (str): 包含LaTeX标题的文档内容。
+        content (str): The document content containing LaTeX titles.
     
     Returns:
-        str: 处理后的文档内容，其中标题的首字母已大写。
+        str: The processed document content with capitalized titles.
     
     Note:
-        - 该函数使用正则表达式对文档中的标题进行匹配和处理。
-        - 标题后的内容将被视为一个整体字符串，并去除其首尾空白字符和结尾的标点符号。
-        - 标题中的每个单词（除了指定的例外词汇）的首字母将被大写。
-        - 特定的缩写词（全大写的且长度至少为2的单词）将保持原样。
-        - 标题后的内容将被包裹在{}中，并在其后添加换行符。
+        - This function uses regular expressions to match and process titles in the document.
+        - The content following the title is treated as a single string and stripped of leading and trailing whitespace and trailing punctuation.
+        - The first letter of each word in the title (except for specified exception words) is capitalized.
+        - Specific acronyms (all uppercase and at least 2 letters long) are left unchanged.
+        - The content following the title is wrapped in {} and followed by a newline.
     """
     
     exceptions = {
@@ -66,26 +66,26 @@ def capitalize_titles(content):
     
     def capitalize(match):
         """
-        对匹配的文本进行格式化处理，包括去除首尾空白、将多个空白字符变成一个空格，以及将每个单词的首字母大写（排除特定词汇）。
+        Format the matched text, including stripping leading and trailing whitespace, converting multiple whitespace characters to a single space, and capitalizing the first letter of each word (excluding specific words).
         
         Args:
-            match: 一个匹配对象，该对象包含了原始字符串中的匹配文本。
+            match: A match object containing the matched text from the original string.
         
         Returns:
-            str: 格式化后的字符串，包括匹配前的文本、处理后的文本和换行符。
+            str: The formatted string, including the text before the match, the processed text, and a newline.
         
         """
-        text = match.group(2).strip()  # 去掉首尾空白字符
-        text = text.rstrip(" .,;:!。，；：！")  # 去掉结尾标点符号
-        text = re.sub(r'\s+', ' ', text)  # 将内部多个空白字符变成一个空格
+        text = match.group(2).strip()  # Strip leading and trailing whitespace
+        text = text.rstrip(" .,;:!。，；：！")  # Strip trailing punctuation
+        text = re.sub(r'\s+', ' ', text)  # Convert internal multiple whitespace characters to a single space
 
-        # 将内容的每个单词首字母大写
+        # Capitalize the first letter of each word in the content
         words = text.split()
         capitalized_words = [
-            # 处理第一个单词，如果它已经全大写，则保持不变；否则，将其首字母大写。重点是，不排除exceptions。
+            # Process the first word, if it is already all uppercase, leave it unchanged; otherwise, capitalize its first letter. The key point is not to exclude exceptions.
             words[0] if words[0].isupper() else words[0].capitalize()
         ] + [
-            # 处理后续的单词。如果单词在 exceptions 列表中，或者全大写，或者是全大写的缩写词（由正则表达式 ^[A-Z]{2,}$ 匹配），则保持不变；否则，将其首字母大写。
+            # Process subsequent words. If the word is in the exceptions list, or is all uppercase, or is an all-uppercase acronym (matched by the regular expression ^[A-Z]{2,}$), leave it unchanged; otherwise, capitalize its first letter.
             word if word.lower() in exceptions or word.isupper() or re.match(r'^[A-Z]{2,}$', word) else word.capitalize() for word in words[1:]
         ]
         capitalized_text = ' '.join(capitalized_words)
@@ -94,13 +94,13 @@ def capitalize_titles(content):
 
         return '\n\n' + begin + '{' + capitalized_text + '}\n\n'
 
-    # 注意，此行代码使用贪婪模式。有效的前提是，例如 \section{title} 后面另起一行。
+    # Note that this line uses greedy mode. The valid premise is that, for example, \section{title} is followed by a new line.
     content = re.sub(r'(\s*(?:\\part|\\chapter|\\section|\\subsection|\\subsubsection|\\paragraph|\\subparagraph)\s*\*?\s*)\{(.*)\}\s*', capitalize, content)
     content = remove_extra_newlines(content)
 
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -118,6 +118,6 @@ def capitalize_titles(content):
 def test_capitalize_titles(input_text, expected_output):
     assert capitalize_titles(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

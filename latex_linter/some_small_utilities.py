@@ -7,16 +7,16 @@ import pytest
 
 def some_small_utilities(content):
     """
-    众多小功能的集合
+    Collection of various small utilities
     """
-    content = re.sub(r'\s*\\text\s*\{\s*([ \.,;:!]*)\s*\}', r'\1', content) # mathpix 总是喜欢搞出来  \text {, } 这样
-    content = re.sub(r'\\text\s*\{', r'\\text{', content) # mathpix 总是喜欢搞出来  \text { some text } 这样 text后面有一个空格
-    content = re.sub(r'\s*\^\s*\{\s*T\s*\}', r'^{\\top}', content) # 转置符号使用 `\top`
-    content = re.sub(r'\s*\^\s*\{\s*[\'`]\s*\}', r'^{\\prime}', content) #  `\prime` 代替单引号上标
+    content = re.sub(r'\s*\\text\s*\{\s*([ \.,;:!]*)\s*\}', r'\1', content) # mathpix always introduces \text {, } like this
+    content = re.sub(r'\\text\s*\{', r'\\text{', content) # mathpix always introduces \text { some text } like this with a space after text
+    content = re.sub(r'\s*\^\s*\{\s*T\s*\}', r'^{\\top}', content) # Transpose symbol uses `\top`
+    content = re.sub(r'\s*\^\s*\{\s*[\'`]\s*\}', r'^{\\prime}', content) # `\prime` replaces single quote superscript
 
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -32,6 +32,6 @@ def some_small_utilities(content):
 def test_some_small_utilities(input_text, expected_output):
     assert some_small_utilities(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

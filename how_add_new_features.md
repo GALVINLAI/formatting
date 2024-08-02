@@ -1,22 +1,22 @@
-# 添加新功能
+# Adding New Features
 
-## 第一步：添加新功能的核心代码
+## Step 1: Add the Core Code for the New Feature
 
-在 `latex_linter` 文件夹中创建一个 Python 文件，命名为 `new_feature_name.py`。文件格式如下。测试用例部分不是必须的，但是必须包含一个与 py 文件同名的函数 `new_feature_name`。该函数的输入是整个输入框的文本内容，返回值是输出框的内容，这个输出内容会被其他功能进一步处理。
+Create a Python file named `new_feature_name.py` in the `latex_linter` folder. The format of the file is as follows. The test cases section is optional, but it must include a function named `new_feature_name` that matches the .py file. The input to this function is the entire text content of the input box, and the return value is the content of the output box, which will be further processed by other features.
 
 ```python
 """
-新功能的说明
+Description of the new feature
 """
 
 import re
 import pytest
 
 def new_feature_name(content):
-    # 实现代码
+    # Implementation code
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -27,47 +27,47 @@ def new_feature_name(content):
 def test_new_feature_name(input_text, expected_output):
     assert new_feature_name(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
 ```
 
-## 第二步：使用 `add_features_auto.py` 自动添加到 GUI
+## Step 2: Automatically Add to the GUI Using `add_features_auto.py`
 
-在根目录下的终端运行以下命令：
+Run the following command in the terminal at the root directory:
 
 ```sh
-python add_features_auto.py --name new_feature_name --description '自定义的新功能（仅用做演示）'  
+python add_features_auto.py --name new_feature_name --description 'Custom new feature (for demonstration purposes only)'  
 ```
 
-运行 `main.py`，可以看到新功能已经添加到 GUI 中。至此，完成添加新功能的步骤。默认新功能是关闭的，如果要默认开启，需要在 `main.py` 手动修改，详细如下。
+Running `main.py` will show that the new feature has been added to the GUI. At this point, the process of adding a new feature is complete. By default, the new feature is turned off. If you want it to be enabled by default, you need to manually modify `main.py` as detailed below.
 
-## 额外其他
+## Additional Information
 
-下面内容是第二步自动执行任务的说明。
+The following content explains the tasks automatically performed in Step 2.
 
-### 在 `text_processing.py` 中集成
+### Integration in `text_processing.py`
 
-打开 `text_processing.py`，在开头导入新功能：
+Open `text_processing.py` and import the new feature at the beginning:
 
 ```python
 from latex_linter.new_feature_name import new_feature_name
 ```
 
-然后在 `replace_text` 函数中加入新功能处理的语句：
+Then add the statement for processing the new feature in the `replace_text` function:
 
 ```python
-# ---------- 新功能的说明 ----------
+# ---------- Description of the new feature ----------
 if options['new_feature_name']:
     content = new_feature_name(content)
 ```
 
-### 更新 `main.py`
+### Update `main.py`
 
-打开 `main.py`，在 `options` 中添加如下内容。最后的 `False` 表示初始状态不勾选，若需要默认勾选，可以设置为 `True`。
+Open `main.py` and add the following content to `options`. The final `False` indicates that it is not selected initially. If you want it to be selected by default, you can set it to `True`.
 
 ```python
-("new_feature_name", "新功能的说明", False)
+("new_feature_name", "Description of the new feature", False)
 ```
 
-完成以上步骤后，运行 `main.py` 即可看到新功能的效果。需要注意的是，只有在重新生成 exe 程序后，exe 程序中才会显示新功能。
+After completing the above steps, running `main.py` will show the effect of the new feature. Note that the new feature will only appear in the exe program after regenerating the exe program.

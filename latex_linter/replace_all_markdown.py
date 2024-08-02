@@ -1,5 +1,5 @@
 """
-去掉所有Markdown特征
+Remove all Markdown features
 """
 
 import re
@@ -7,20 +7,20 @@ import pytest
 
 def replace_all_markdown(content):
     """
-    删除 LaTeX 文档中的 Markdown 格式，包括删除所有 ** 和 ## 之类的标题。
+    Remove Markdown formatting from LaTeX documents, including removing all ** and ##-like headings.
     
     Args:
-        content (str): 包含 Markdown 格式的文档内容。
+        content (str): The document content containing Markdown formatting.
     
     Returns:
-        str: 处理后的文档内容，其中所有 ** 和 ## 之类的标题已被删除。
+        str: The processed document content with all ** and ##-like headings removed.
     """
-    content = re.sub(r'\*\*', '', content)  # 删除所有 **
-    content = re.sub(r'\#+ ', '', content)  # 删除所有 ## 之类的标题
+    content = re.sub(r'\*\*', '', content)  # Remove all **
+    content = re.sub(r'\#+ ', '', content)  # Remove all ##-like headings
     
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -35,7 +35,6 @@ def replace_all_markdown(content):
 def test_replace_all_markdown(input_text, expected_output):
     assert replace_all_markdown(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

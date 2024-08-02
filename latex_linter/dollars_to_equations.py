@@ -1,22 +1,22 @@
 """
-行间公式：替换 $$ ... $$ 为 equation 环境
+Inline formulas: Replace $$ ... $$ with the equation environment
 """
 
 import re
 import pytest
 
-# TODO 下面的核心逻辑有bug，如果注释里面有单个 $$，则会被替换为 equation 环境，需要改进。
+# TODO The core logic below has a bug. If there is a single $$ in the comments, it will be replaced with the equation environment, which needs to be improved.
 
 
 def dollars_to_equations(content):
     """
-    将 LaTeX 文档中的 $$ 替换为 equation 环境，并自动规范内部格式。
+    Replace $$ in LaTeX documents with the equation environment and automatically standardize the internal format.
     
     Args:
-        content (str): 包含 $$ 行间公式的文档内容。
+        content (str): The document content containing $$ inline formulas.
     
     Returns:
-        str: 处理后的文档内容，其中 $$ 行间公式已被替换为 equation 环境。
+        str: The processed document content, where $$ inline formulas have been replaced with the equation environment.
     """
     def fun_dollars_to_equations(match):
         nonlocal count
@@ -30,7 +30,7 @@ def dollars_to_equations(content):
     content = re.sub(r'\$\$', fun_dollars_to_equations, content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -44,7 +44,6 @@ def dollars_to_equations(content):
 def test_dollars_to_equations(input_text, expected_output):
     assert dollars_to_equations(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

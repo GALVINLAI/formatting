@@ -1,5 +1,5 @@
 """
-行间公式：替换 \[ ... \] 为 $$ ... $$ 环境
+Inline equations: Replace \[ ... \] with $$ ... $$ environment
 """
 
 import re
@@ -7,18 +7,18 @@ import pytest
 
 def square_brackets_to_dollars(content):
     """
-    将 LaTeX 文档中的 \\[ 和 \\] 替换为 $$ 环境。
+    Replace \\[ and \\] in a LaTeX document with $$ environment.
     
     Args:
-        content (str): 包含 \\[ 和 \\] 的文档内容。
+        content (str): The document content containing \\[ and \\].
     
     Returns:
-        str: 处理后的文档内容，其中 \\[ 和 \\] 已被替换为 $$。
+        str: The processed document content with \\[ and \\] replaced by $$.
     """
     content = re.sub(r'\\\[|\\\]', '$$', content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -32,7 +32,6 @@ def square_brackets_to_dollars(content):
 def test_square_brackets_to_dollars(input_text, expected_output):
     assert square_brackets_to_dollars(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

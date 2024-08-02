@@ -1,5 +1,5 @@
 """
-行间公式：替换 equation 为 $$ ... $$ 环境
+Inline equations: Replace equation with $$ ... $$ environment
 """
 
 import re
@@ -7,18 +7,18 @@ import pytest
 
 def equations_to_dollars(content):
     """
-    将 LaTeX 文档中的 equation 环境替换为 $$ 环境。
+    Replace equation environment in LaTeX document with $$ environment.
     
     Args:
-        content (str): 包含 equation 环境的文档内容。
+        content (str): Document content containing equation environment.
     
     Returns:
-        str: 处理后的文档内容，其中 equation 环境已被替换为 $$ 环境。
+        str: Processed document content with equation environment replaced by $$ environment.
     """
     content = re.sub(r'\\begin\{equation\}|\\end\{equation\}', '$$', content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -32,7 +32,6 @@ def equations_to_dollars(content):
 def test_equations_to_dollars(input_text, expected_output):
     assert equations_to_dollars(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

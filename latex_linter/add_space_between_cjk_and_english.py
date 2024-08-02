@@ -1,5 +1,5 @@
 """
-在中日韩字符和英文或数字之间添加空格
+Add space between CJK characters and English or digits
 """
 
 import re
@@ -7,28 +7,28 @@ import pytest
 
 def add_space_between_cjk_and_english(text: str) -> str:
     """
-    在中日韩字符和英文或数字之间添加空格
+    Add space between CJK characters and English or digits
     
     Args:
-        text (str): 需要处理的字符串
+        text (str): The string to be processed
     
     Returns:
-        str: 处理后的字符串，中日韩字符和英文或数字之间添加了空格
+        str: The processed string with spaces added between CJK characters and English or digits
     
     """
-    # 定义正则表达式模式
+    # Define regex patterns
     cjk_pattern = r'[\u4e00-\u9fff\u30a0-\u30ff\u3040-\u309f\uac00-\ud7af]'
     english_pattern = r'[a-zA-Z0-9]'
     
-    # 定义中日韩字符后和前的非字母字符
+    # Define non-letter characters after and before CJK characters
     english_non_letter_after_cjk = r"-+'\"([¥$"
     english_non_letter_before_cjk = r"-+;:'\"°%$)]"
 
-    # 构建头部和尾部的正则表达式
+    # Construct head and tail regex patterns
     head_pattern = re.compile(f'({cjk_pattern})( *)({english_pattern}|[{re.escape(english_non_letter_after_cjk)}])')
     tail_pattern = re.compile(f'({english_pattern}|[{re.escape(english_non_letter_before_cjk)}])( *)({cjk_pattern})')
 
-    # 在中日韩字符和英文或数字之间添加空格
+    # Add space between CJK characters and English or digits
     def add_space(text: str) -> str:
         text = head_pattern.sub(r'\1 \3', text)
         text = tail_pattern.sub(r'\1 \3', text)
@@ -37,7 +37,7 @@ def add_space_between_cjk_and_english(text: str) -> str:
     return add_space(text)
 
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -57,6 +57,6 @@ def add_space_between_cjk_and_english(text: str) -> str:
 def test_add_space_between_cjk_and_english(input_text, expected_output):
     assert add_space_between_cjk_and_english(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

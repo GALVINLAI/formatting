@@ -1,5 +1,5 @@
 """
-去掉 align 和 equation 环境中用于不显示tag的 * 号
+Remove the * character in align and equation environments to display tags
 """
 
 import re
@@ -7,18 +7,18 @@ import pytest
 
 def remove_asterisks_tags(content):
     """
-    去掉 LaTeX 文档中 align 和 equation 环境中的 * 号，以便显示标签。
+    Remove the * character in align and equation environments in a LaTeX document to display tags.
     
     Args:
-        content (str): 包含 LaTeX 环境的文档内容。
+        content (str): The document content containing LaTeX environments.
     
     Returns:
-        str: 处理后的文档内容，其中 align 和 equation 环境中的 * 号已被去掉。
+        str: The processed document content with the * character removed from align and equation environments.
     """
     content = re.sub(r'\\(begin|end)\{(align|equation)\*\}', r'\\\1{\2}', content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -32,7 +32,6 @@ def remove_asterisks_tags(content):
 def test_remove_asterisks_tags(input_text, expected_output):
     assert remove_asterisks_tags(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

@@ -1,5 +1,5 @@
 """
-行内公式：替换 \( ... \) 为 $ ... $ 环境
+Inline formulas: Replace \( ... \) with $ ... $ environment
 """
 
 import re
@@ -7,18 +7,18 @@ import pytest
 
 def parentheses_to_single_dollar(content):
     """
-    替换 LaTeX 文档中的 \( 和 \) 为 $ 包围。
+    Replace \( and \) in LaTeX documents with $ surrounding.
     
     Args:
-        content (str): 包含 LaTeX 行内公式的文档内容。
+        content (str): The document content containing LaTeX inline formulas.
     
     Returns:
-        str: 处理后的文档内容，其中 \( 和 \) 已被替换为 $。
+        str: The processed document content where \( and \) have been replaced with $.
     """
     content = re.sub(r'\\\(|\\\)', '$', content)
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -32,7 +32,6 @@ def parentheses_to_single_dollar(content):
 def test_parentheses_to_single_dollar(input_text, expected_output):
     assert parentheses_to_single_dollar(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
-

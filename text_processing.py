@@ -23,91 +23,91 @@ from latex_linter.new_feature_name import new_feature_name
 
 def replace_text(content, options):
     """
-    根据用户选择，执行相应的替换操作。
+    Perform corresponding replacement operations based on user choices.
     """
 
     # ====================================
-    # 通用功能
+    # General Features
     # ====================================
 
-    # ---------- 在中日韩字符和英文或数字之间添加空格 ----------
+    # ---------- Add space between CJK characters and English or digits ----------
     if options['add_space_between_cjk_and_english']:
         content = add_space_between_cjk_and_english(content)
 
-    # ---------- 将多行空行变成单行空行 ----------
+    # ---------- Convert multiple blank lines into single blank lines ----------
     if options['remove_extra_newlines']:
         content = remove_extra_newlines(content)
 
     # ====================================
-    # 数学公式
+    # Mathematical Formulas
     # ====================================
 
-    # ---------- 行内公式：规范 $ ... $ 环境 ----------
+    # ---------- Inline formulas: Standardize $ ... $ environment ----------
     if options['format_single_dollar']:
         content = format_single_dollar(content)
 
-    # ---------- 行内公式：规范 \( ... \) 环境 ----------
+    # ---------- Inline formulas: Standardize \( ... \) environment ----------
     if options['format_parentheses']:
         content = format_parentheses(content)
 
-    # ---------- 行内公式：替换 \( ... \) 为 $ ... $ 环境 ----------
+    # ---------- Inline formulas: Replace \( ... \) with $ ... $ environment ----------
     if options['parentheses_to_single_dollar']:
         content = parentheses_to_single_dollar(content)
         content = format_single_dollar(content)
 
-    # ---------- 行间公式：规范 equation 环境 ----------
+    # ---------- Display formulas: Standardize equation environment ----------
     if options['format_equations']:
         content = format_equations(content)
 
-    # ---------- 行间公式：规范 $$ ... $$ 环境 ----------
+    # ---------- Display formulas: Standardize $$ ... $$ environment ----------
     if options['format_dollars']:
         content = format_dollars(content)
 
-    # ---------- 行间公式：规范 \[ ... \] 环境 ----------
+    # ---------- Display formulas: Standardize \[ ... \] environment ----------
     if options['format_square_brackets']:
         content = format_square_brackets(content)
 
-    # ---------- 行间公式：替换 \[ ... \] 为 $$ ... $$ 环境 ----------
+    # ---------- Display formulas: Replace \[ ... \] with $$ ... $$ environment ----------
     if options['square_brackets_to_dollars']:
         content = square_brackets_to_dollars(content)
         content = format_dollars(content)
 
-    # ---------- 行间公式：替换 equation 为 $$ ... $$ 环境 ----------
+    # ---------- Display formulas: Replace equation with $$ ... $$ environment ----------
     if options['equations_to_dollars']:
         content = equations_to_dollars(content)
         content = format_dollars(content)
 
-    # ---------- 行间公式：替换 \[ ... \] 为 equation 环境 ----------
+    # ---------- Display formulas: Replace \[ ... \] with equation environment ----------
     if options['square_brackets_to_equations']:
         content = square_brackets_to_equations(content)
         content = format_equations(content)
 
-    # ---------- 行间公式：替换 $$ ... $$ 为 equation 环境 ----------
+    # ---------- Display formulas: Replace $$ ... $$ with equation environment ----------
     if options['dollars_to_equations']:
         content = dollars_to_equations(content)
         content = format_equations(content)
 
-    # ---------- 将内嵌在 equation 中的 aligned 环境变成单独的 align 环境 ----------
+    # ---------- Convert embedded aligned environment within equation to separate align environment ----------
     if options['replace_equation_aligned']:
         content = replace_equation_aligned(content)
 
-    # ---------- 去掉 align 和 equation 环境中用于不显示tag的 * 号 ----------
+    # ---------- Remove asterisks used for not displaying tags in align and equation environments ----------
     if options['remove_asterisks_tags']:
         content = remove_asterisks_tags(content)
 
     # ====================================
-    # 其他latex特性
+    # Other LaTeX Features
     # ====================================
 
-    # ---------- 规范 \item 格式 ----------
+    # ---------- Standardize \item format ----------
     if options['format_item']:
         content = format_item(content)
 
-    # ---------- 将各级标题（例如 \section \subsection 等）的英文首字母大写，并去掉被包围文本的首尾空白字符，同时内部多个空字符变成一个空格 ----------
+    # ---------- Capitalize the first letter of English titles (e.g., \section, \subsection, etc.), trim surrounding whitespace, and convert multiple internal spaces to a single space ----------
     if options['capitalize_titles']:
         content = capitalize_titles(content)
 
-    # ---------- 规范 align 环境 ----------
+    # ---------- Standardize align environment ----------
     if options['format_aligns']:
         content = format_aligns(content)
 
@@ -117,31 +117,31 @@ def replace_text(content, options):
     if options['equations_to_equations_star']:
         content = equations_to_equations_star(content)
 
-    # ---------- 让行间，行内公式符合zulip语法 ----------
+    # ---------- Make display and inline formulas conform to Zulip syntax ----------
     if options['format_for_zulip']:
         content = format_for_zulip(content)
 
     # ====================================
-    # 针对 Markdown 特性的功能
+    # Features for Markdown
     # ====================================
 
-    # ---------- 将 Markdown 的标题等变成 latex 对应物 ----------
+    # ---------- Convert Markdown titles, etc., to corresponding LaTeX elements ----------
     if options['convert_markdown_titles_to_latex']:
         content = convert_markdown_titles_to_latex(content)
 
-    # ---------- 将 Markdown 的 ** 包围变成 \\textbf 环境 ----------
+    # ---------- Convert Markdown's ** enclosure to \textbf environment ----------
     if options['replace_stars_with_textbf']:
         content = replace_stars_with_textbf(content)
 
-    # ---------- 将 Markdown 的 * 包围变成 \\textit 环境 ----------
+    # ---------- Convert Markdown's * enclosure to \textit environment ----------
     if options['replace_stars_with_textit']:
         content = replace_stars_with_textit(content)
 
-    # ---------- 去掉所有 Markdown 特征 ----------
+    # ---------- Remove all Markdown features ----------
     if options['replace_all_markdown']:
         content = replace_all_markdown(content)
 
-    # ---------- 自定义的新功能（仅用做演示） ----------
+    # ---------- Custom new feature (for demonstration purposes only) ----------
     if options['new_feature_name']:
         content = new_feature_name(content)
 

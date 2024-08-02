@@ -1,5 +1,5 @@
 """
-行间公式：替换 equation 为 equation* 环境，如果没有 label
+Inline formulas: Replace the 'equation' environment with the 'equation*' environment if there is no 'label'.
 """
 
 import re
@@ -7,34 +7,34 @@ import pytest
 
 def equations_to_equations_star(content):
     """
-    将 LaTeX 文档中的 equation 环境替换为 equation* 环境，如果没有 label。
+    Replace the 'equation' environment with the 'equation*' environment in a LaTeX document if there is no 'label'.
     
     Args:
-        content (str): 包含 equation 环境的文档内容。
+        content (str): The document content containing 'equation' environments.
     
     Returns:
-        str: 处理后的文档内容，其中无 label 的 equation 环境已被替换为 equation* 环境。
+        str: The processed document content, where 'equation' environments without 'label' have been replaced with 'equation*' environments.
     """
     def format_equation_with_label(match):
         text = match.group(2)
         
         if 'label' not in text:
-            # 如果没有 label，则最后为 equation*
+            # If there is no 'label', then it ends as 'equation*'
             begin = re.sub(r'equation\*?', 'equation*', match.group(1))
             end = re.sub(r'equation\*?', 'equation*', match.group(3))
             return begin + text + end
         else:
-            # 如果有 label，则最后为 equation
+            # If there is a 'label', then it ends as 'equation'
             begin = re.sub(r'equation\*?', 'equation', match.group(1))
             end = re.sub(r'equation\*?', 'equation', match.group(3))
             return begin + text + end
     
-    # 特别注意，该匹配必须是 flags=re.DOTALL，即单行模式
+    # Special attention, this match must be flags=re.DOTALL, i.e., single-line mode
     content = re.sub(r'(\s*\\begin\{equation\*?\})(.*?)(\\end\{equation\*?\}\s*)', format_equation_with_label, content, flags=re.DOTALL)
     
     return content
 
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -49,6 +49,6 @@ def equations_to_equations_star(content):
 def test_equations_to_equations_star(input_text, expected_output):
     assert equations_to_equations_star(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

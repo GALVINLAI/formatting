@@ -3,31 +3,31 @@ import pytest
 
 def format_for_zulip(content):
     """
-    让行间，行内公式符合zulip语法
+    Ensure line-by-line and inline formulas comply with Zulip syntax.
 
     Args:
-        content (str): 输入文本内容。
+        content (str): The input text content.
 
     Returns:
-        str: 替换后的文本内容。
+        str: The replaced text content.
     """
 
-    # 参考 zulip 的 latex 语法 https://zulip.com/help/latex#latex
+    # Refer to Zulip's LaTeX syntax https://zulip.com/help/latex#latex
 
-    # 将所有被两个 $$ 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
-    # 将所有被 \[ \] 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
-    # 将所有被 equation 包围的内容替换成用 ```math 开头和 ``` 结尾的包围形式。
+    # Replace all content surrounded by two $$ with a format starting with ```math and ending with ```.
+    # Replace all content surrounded by \[ \] with a format starting with ```math and ending with ```.
+    # Replace all content surrounded by equation with a format starting with ```math and ending with ```.
     content = re.sub(r'\s*\$\$\s*(.*?)\s*\$\$\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
     content = re.sub(r'\s*\\\[\s*(.*?)\s*\\\]\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
     content = re.sub(r'\s*\\begin\{equation\*?\}\s*(.*?)\s*\\end\{equation\*?\}\s*', r'\n```math\n\1\n```\n', content, flags=re.DOTALL)
     
-    # zulip 的 markdown 语法中，只有两个 $$ 之间的内容会被识别为inline数学公式。
+    # In Zulip's markdown syntax, only content between two $$ is recognized as an inline math formula.
     content = re.sub(r'(?<!\$)\$\s*([^\$]+?)\s*\$', r'$$\1$$', content)
     content = re.sub(r'\\\(\s*(.*?)\s*\\\)', r'$$\1$$', content)
 
     return content
 
-# -- 测试 ----------
+# -- Testing ----------
 
 @pytest.mark.parametrize(
     "input_text, expected_output",
@@ -57,6 +57,6 @@ def format_for_zulip(content):
 def test_format_for_zulip(input_text, expected_output):
     assert format_for_zulip(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

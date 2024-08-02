@@ -1,5 +1,5 @@
 """
-规范 \item 格式
+Standardize \item formatting
 """
 
 import re
@@ -7,19 +7,19 @@ import pytest
 
 def format_item(content):
     """
-    规范 LaTeX 文档中 \\item 的格式，确保每个 \\item 之前有且仅有一个制表符，并且之后有且仅有一个空格。
+    Standardize the formatting of \\item in LaTeX documents to ensure each \\item is preceded by exactly one tab and followed by exactly one space.
     
     Args:
-        content (str): 包含 LaTeX 列表项的文档内容。
+        content (str): The document content containing LaTeX list items.
     
     Returns:
-        str: 处理后的文档内容，其中 \\item 的格式已被规范化。
+        str: The processed document content with the \\item formatting standardized.
     """
     content = re.sub(r'(?<!\t)\s*\\item\s*', r'\n    \\item ', content)
     return content
 
       
-# 测试用例
+# Test cases
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -34,6 +34,6 @@ def format_item(content):
 def test_format_item(input_text, expected_output):
     assert format_item(input_text) == expected_output
 
-# 运行测试
+# Run tests
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
