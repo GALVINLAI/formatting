@@ -10,6 +10,8 @@ from openai import OpenAI
 
 注意：需要你自行注册并获得自己的deepseek API key。然后将其存放在环境变量中DEEPSEEK_API_KEY。
 或者使用其他LLM的API key。
+
+deepseek prompt 使用中文似乎更好?
 '''
 
 # 从环境变量中读取 API 密钥
