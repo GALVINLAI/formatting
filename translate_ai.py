@@ -1,7 +1,18 @@
-from openai import OpenAI
 import os
 import nbformat
 import re
+from openai import OpenAI
+
+'''
+自动将本仓库中的所有py，md文件翻译成指定语言。
+
+警告!! 翻译好的文件会直接覆盖原文件。此过程不可逆!请先备份文件。
+
+注意：需要你自行注册并获得自己的deepseek API key。然后将其存放在环境变量中DEEPSEEK_API_KEY。
+或者使用其他LLM的API key。
+
+deepseek prompt 使用中文似乎更好?
+'''
 
 # 从环境变量中读取 API 密钥
 api_key = os.getenv("DEEPSEEK_API_KEY")
@@ -21,6 +32,7 @@ def translate_text(text, prompt):
     )
     translation = response.choices[0].message.content.strip()
     return translation
+
 
 def contains_chinese(text):
     return re.search(r'[\u4e00-\u9fff]', text) is not None
@@ -72,8 +84,19 @@ def translate_file(input_path, output_path, target_language, file_type):
             prompt = f"将下面代码脚本中的注释翻译为{target_language}。不要修改代码本身。只返回完全翻译的代码脚本。"
         
         print(f"Processing {file_type} file {input_path}")
-        translated_content = translate_text(content, prompt)
-        translated_content = deal_python_block(translated_content)
+
+        split_index = 212
+        lines = content.splitlines()
+        if len(lines) > 300:
+            # When the .py file has more than 300 lines, an error will be thrown and the user will be notified to manually specify the split line number:
+            first_half = "\n".join(lines[:split_index])
+            second_half = "\n".join(lines[split_index:])
+            translated_first_half = deal_python_block(translate_text(first_half, prompt))
+            translated_second_half = deal_python_block(translate_text(second_half, prompt))
+            translated_content = translated_first_half + "\n" + translated_second_half
+        else:
+            translated_content = deal_python_block(translate_text(content, prompt))
+
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(translated_content)
 
@@ -89,23 +112,25 @@ def process_files(base_path, target_language='英文'):
                 print(f"Skipping excluded file {file_path}")
                 continue
             if file.endswith('.ipynb'):
-                output_path = file_path.replace('.ipynb', '_translated.ipynb')
+                output_path = file_path.replace('.ipynb', '.ipynb') # '_translated.ipynb'
                 translate_notebook(file_path, output_path, target_language)
             elif file.endswith('.py'):
-                output_path = file_path.replace('.py', '_translated.py')
+                output_path = file_path.replace('.py', '.py')
                 translate_file(file_path, output_path, target_language, 'python')
             elif file.endswith('.md'):
-                output_path = file_path.replace('.md', '_translated.md')
+                output_path = file_path.replace('.md', '.md')
                 translate_file(file_path, output_path, target_language, 'markdown')
 
 # 示例调用
-base_path = 'lai_playground' # 指定文件夹
+base_path = 'latex_linter' # 指定文件夹
 base_path = './'
 
 # 指定要排除的文件名列表
 excluded_files = [
     'example.ipynb',
+    'checkbox_states.json',
     'translate_ai.py'
 ]
 
 process_files(base_path, target_language='英文')
+
