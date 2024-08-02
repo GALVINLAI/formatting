@@ -12,7 +12,7 @@ metadata = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
     "author": "赖小戴",
     "version": "1.4",
-    "update_date": "2024-07-30",
+    "update_date": "2024-08-02",
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
     "email": "lai_zhijian@pku.edu.cn",
