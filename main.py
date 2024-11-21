@@ -6,6 +6,7 @@ from text_processing import replace_text  # 你的自定义文本处理模块
 from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder  # 你的自定义文件操作模块
 from datetime import datetime
 from functools import partial
+import os
 
 # 定义元数据
 metadata = {
@@ -271,8 +272,15 @@ def on_checkbox_change(*args):
 # 创建主窗口
 root = tk.Tk()
 root.title(f"{metadata['title']} 版本: {metadata['version']} 更新日期：{metadata['update_date']}")
+
+# 获取当前脚本的绝对路径
+base_path = os.path.abspath(os.path.dirname(__file__))
+icon_path = os.path.join(base_path, "icon.png")
+
+print("Icon path:", os.path.abspath(icon_path))
+
 # 设置窗口图标
-root.iconbitmap("icon.ico")
+root.iconphoto(True, tk.PhotoImage(file=icon_path))
 
 # 在创建主窗口后初始化 CURRENT_STATE_VAR
 CURRENT_STATE_VAR = tk.StringVar(root)
