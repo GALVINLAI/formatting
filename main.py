@@ -279,8 +279,14 @@ icon_path = os.path.join(base_path, "icon.png")
 
 print("Icon path:", os.path.abspath(icon_path))
 
-# 设置窗口图标
-root.iconphoto(True, tk.PhotoImage(file=icon_path))
+# 设置图标 (iconphoto 方法支持 PNG 格式)
+if os.path.exists(icon_path):
+    try:
+        root.iconphoto(True, tk.PhotoImage(file=icon_path))
+    except Exception as e:
+        print(f"图标加载失败: {e}")
+else:
+    print(f"警告: 图标文件未找到, 路径为: {icon_path}")
 
 # 在创建主窗口后初始化 CURRENT_STATE_VAR
 CURRENT_STATE_VAR = tk.StringVar(root)
