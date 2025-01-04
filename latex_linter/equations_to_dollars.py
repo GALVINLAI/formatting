@@ -15,7 +15,7 @@ def equations_to_dollars(content):
     Returns:
         str: 处理后的文档内容，其中 equation 环境已被替换为 $$ 环境。
     """
-    content = re.sub(r'\\begin\{equation\}|\\end\{equation\}', '$$', content)
+    content = re.sub(r'\\begin\{equation\*?\}|\\end\{equation\*?\}', '$$', content)
     return content
 
 # 测试用例

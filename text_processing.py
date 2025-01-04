@@ -20,6 +20,7 @@ from latex_linter.some_small_utilities import some_small_utilities
 from latex_linter.equations_to_equations_star import equations_to_equations_star 
 from latex_linter.format_for_zulip import format_for_zulip
 from latex_linter.new_feature_name import new_feature_name
+from latex_linter.replace_fullwidth_punctuation import replace_fullwidth_punctuation
 
 def replace_text(content, options):
     """
@@ -144,5 +145,9 @@ def replace_text(content, options):
     # ---------- 自定义的新功能（仅用做演示） ----------
     if options['new_feature_name']:
         content = new_feature_name(content)
+
+    # ---------- 高数B讲义制作用 ----------
+    if options['replace_fullwidth_punctuation']:
+        content = replace_fullwidth_punctuation(content)
 
     return content

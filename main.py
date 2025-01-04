@@ -336,6 +336,7 @@ canvas.bind("<Enter>", lambda event: canvas.bind_all("<MouseWheel>", on_mouse_wh
 canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
 options = [
+    ("replace_fullwidth_punctuation", "高数B讲义制作用", False),
     ("new_feature_name", "自定义的新功能（仅用做演示）", False),
     ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
