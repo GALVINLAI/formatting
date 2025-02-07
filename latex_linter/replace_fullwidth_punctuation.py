@@ -11,6 +11,7 @@ def replace_fullwidth_punctuation(content):
         '，': ',',
         '、': ',',
         '。': '.',
+        '．': '.',
         '！': '!',
         '？': '?',
         '：': ':',
