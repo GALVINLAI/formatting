@@ -9,13 +9,13 @@ from functools import partial
 
 # 定义元数据
 metadata = {
-    "title": "LatexFormatting (Latex数学公式源码格式化工具) 【持续开发中】",
+    "title": "LatexFormatting (Latex数学公式源码格式化工具)",
     "author": "赖小戴",
-    "version": "1.4",
-    "update_date": "2024-08-02",
+    "version": "2.0",
+    "update_date": "2026-01-31",
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
-    "email": "lai_zhijian@pku.edu.cn",
+    "email": "laizhijian100@outlook.com",
 }
 
 # 保存复选框状态的文件名
@@ -192,7 +192,8 @@ def create_checkbox(frame, text, var, row, col):
     创建一个复选框并添加到指定的框架中，指定行和列。
     """
     checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
-    checkbox.grid(row=row, column=col, sticky='w', padx=5, pady=2)
+    padx = (10, 30) if col == 0 else (30, 10)
+    checkbox.grid(row=row, column=col, sticky='w', padx=padx, pady=3)
     var.trace_add('write', on_checkbox_change)  # 添加 trace 方法
 
 def update_state_menu():
@@ -314,6 +315,8 @@ container.pack(pady=12, fill='both', expand=True)
 canvas = tk.Canvas(container, height=300)
 scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview, width=20)
 options_frame = ttk.Frame(canvas)
+options_frame.grid_columnconfigure(0, weight=1, uniform="options")
+options_frame.grid_columnconfigure(1, weight=1, uniform="options")
 
 options_frame.bind(
     "<Configure>",
@@ -337,31 +340,23 @@ canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
 options = [
     ("replace_fullwidth_punctuation", "高数B讲义制作用", False),
-    ("new_feature_name", "自定义的新功能（仅用做演示）", False),
     ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
-    ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
-    ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
-    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT的回答】", False),
-    ("format_equations", "行间公式：规范 equation 环境", False),
-    ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
-    ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
-    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT的回答】", False),
+    ("repair_display_brackets", "将独立行的 [ ... ] 识别为 \\[ ... \\] 【GPT缺失斜杠】", True),
+    ("repair_inline_parentheses", "将疑似数学 ( ... ) 识别为 \\( ... \\)【GPT缺失斜杠】（可能不奏效）", True),
+    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT】", True),
+    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT】", True),
     ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
     ("square_brackets_to_equations", "行间公式：替换 \\[ ... \\] 为 equation 环境", False),
     ("dollars_to_equations", "行间公式：替换 $$ ... $$ 为 equation 环境", False),
-    ("replace_equation_aligned", "将内嵌在 equation 中的 aligned 环境变成单独的 align 环境", False),
-    ("remove_asterisks_tags", "去掉 align 和 equation 环境中用于不显示tag的 * 号", False),
-    ("format_item", "规范 \\item 格式", False),
-    ("capitalize_titles", "规范化各级标题", True),
-    ("convert_markdown_titles_to_latex", "将 Markdown 的标题等变成 latex 对应物", False),
-    ("replace_stars_with_textbf", "将 Markdown 的 ** 包围变成 \\textbf 环境", False),
-    ("replace_stars_with_textit", "将 Markdown 的 * 包围变成 \\textit 环境", False),
+    ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
+    ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
+    ("format_equations", "行间公式：规范 equation 环境", False),
+    ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
+    ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
+    ("format_aligns", "行间公式：规范 align 环境", False),
+    ("equations_to_equations_star", "行间公式：若无 label, 替换 equation 为 equation*", False),
     ("replace_all_markdown", "去掉所有Markdown特征", False),
-    ("format_aligns", "规范 align 环境", False),
-    ("some_small_utilities", "some_small_utilities", False),
-    ("equations_to_equations_star", "替换 equation 为 equation* 环境，如果没有 label", False),
-    ("format_for_zulip", "让行间，行内公式符合zulip语法", False)
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
@@ -373,6 +368,9 @@ for idx, (key, text, _) in enumerate(options):
     col = 0 if idx < half else 1
     row = idx % half
     create_checkbox(options_frame, text, checkbox_vars[key], row, col)
+
+options_frame.update_idletasks()
+canvas.configure(height=options_frame.winfo_reqheight() + 8)
 
 # 创建文本框和标签的容器
 text_frame = ttk.Frame(root)
@@ -405,8 +403,9 @@ def on_input_text_change(event):
     """
     检测输入文本框的修改，并触发更新输出文本框的内容。
     """
-    input_text_widget.edit_modified(False)
     update_output_text()
+    input_text_widget.edit_modified(False)
+    
 
 input_text_widget.bind("<<Modified>>", on_input_text_change)
 

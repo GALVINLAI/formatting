@@ -1,7 +1,8 @@
+# 重要说明
 
-LatexFormatting is a utility used to format LaTeX and Markdown files.
-For English version, please go to branch [main_en](https://github.com/GALVINLAI/formatting/tree/main_en).
-
+> 2025 年下半年开始，GPT 复制的内容出现“公式定界符缺失反斜杠”的问题（如 `\[ ... \]` 变成 `[ ... ]`，`\(...\)` 变成 `( ... )`）。本版本新增对应修复功能以适配这一变化。
+>
+> 同时，本版本已移除所有与 Markdown 相关的选项。
 
 # 项目简介
 
@@ -14,73 +15,58 @@ For English version, please go to branch [main_en](https://github.com/GALVINLAI/
 
 ## 主要功能
 
-1. **在中日韩字符和英文或数字之间添加空格**  
+1. **高数B讲义制作用（全角标点替换等）**  
+   默认启用: ❌
+
+2. **在中日韩字符和英文或数字之间添加空格**  
    默认启用: ✅
 
-2. **将多行空行变成单行空行**  
+3. **将多行空行变成单行空行**  
    默认启用: ✅
 
-3. **行内公式：规范 `$ ... $` 环境**  
+4. **GPT缺失斜杠：将独立行的 `[ ... ]` 识别为 `\[ ... \]`**  
+   默认启用: ✅
+
+5. **GPT缺失斜杠：将疑似数学 `( ... )` 识别为 `\( ... \)`（保守）**  
+   默认启用: ✅
+
+6. **行内公式：替换 `\( ... \)` 为 `$ ... $` 环境【适合ChatGPT】**  
+   默认启用: ✅
+
+7. **行间公式：替换 `\[ ... \]` 为 `$$ ... $$` 环境【适合ChatGPT】**  
+   默认启用: ✅
+
+8. **行间公式：替换 `equation` 为 `$$ ... $$` 环境**  
    默认启用: ❌
 
-4. **行内公式：规范 `\( ... \)` 环境**  
+9. **行间公式：替换 `\[ ... \]` 为 `equation` 环境**  
    默认启用: ❌
 
-5. **行内公式：替换 `\( ... \)` 为 `$ ... $` 环境 【适合ChatGPT的回答】**  
-   默认启用: ❌
-
-6. **行间公式：规范 `equation` 环境**  
-   默认启用: ❌
-
-7. **行间公式：规范 `$$ ... $$` 环境**  
-   默认启用: ❌
-
-8. **行间公式：规范 `\[ ... \]` 环境**  
-   默认启用: ❌
-
-9. **行间公式：替换 `\[ ... \]` 为 `$$ ... $$` 环境【适合ChatGPT的回答】**  
-   默认启用: ❌
-
-10. **行间公式：替换 `equation` 为 `$$ ... $$` 环境**  
+10. **行间公式：替换 `$$ ... $$` 为 `equation` 环境**  
     默认启用: ❌
 
-11. **行间公式：替换 `\[ ... \]` 为 `equation` 环境**  
+11. **行内公式：规范 `$ ... $` 环境**  
     默认启用: ❌
 
-12. **行间公式：替换 `$$ ... $$` 为 `equation` 环境**  
+12. **行内公式：规范 `\( ... \)` 环境**  
     默认启用: ❌
 
-13. **将内嵌在 `equation` 中的 `aligned` 环境变成单独的 `align` 环境**  
+13. **行间公式：规范 `equation` 环境**  
     默认启用: ❌
 
-14. **去掉 `align` 和 `equation` 环境中用于不显示tag的 `*` 号**  
+14. **行间公式：规范 `$$ ... $$` 环境**  
     默认启用: ❌
 
-15. **规范 `\item` 格式**  
+15. **行间公式：规范 `\[ ... \]` 环境**  
     默认启用: ❌
 
-16. **规范化各级标题**  
-    默认启用: ✅
-
-17. **将 Markdown 的标题等变成 LaTeX 对应物**  
+16. **行间公式：规范 `align` 环境**  
     默认启用: ❌
 
-18. **将 Markdown 的 `**` 包围变成 `\textbf` 环境**  
+17. **行间公式：若无 `label`，替换 `equation` 为 `equation*`**  
     默认启用: ❌
 
-19. **将 Markdown 的 `*` 包围变成 `\textit` 环境**  
-    默认启用: ❌
-
-20. **去掉所有Markdown特征**  
-    默认启用: ❌
-
-21. **规范 `align` 环境**  
-    默认启用: ❌
-
-22. **一些小的实用功能**  
-    默认启用: ❌
-
-23. **替换 `equation` 为 `equation*` 环境，如果没有 `label`**  
+18. **去掉所有 Markdown 特征**  
     默认启用: ❌
 
 ## 额外说明
@@ -109,6 +95,7 @@ python main.py
 ## ⚠️ 注意事项
 
 如果左侧输入框变化时，右侧输出框没有反应。说明出了bug，请关闭重启。
+
 
 ## 如果typora不能正常编译公式
 
@@ -158,22 +145,12 @@ pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath .
 ```
 或者直接在双击 `get_exe.bat`。
 
-## 贡献指南
-
-1. Fork 此项目。
-2. 创建你的功能分支 (`git checkout -b feature/AmazingFeature`)。
-3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)。
-4. 推送到分支 (`git push origin feature/AmazingFeature`)。
-5. 创建一个新的 Pull Request。
-
 ## 联系方式
 
 如有任何问题或建议，请联系作者：
 
 - 邮箱：galvin.lai@outlook.com
 - GitHub: [GALVINLAI](https://github.com/GALVINLAI/formatting)
-
-
 
 
 
