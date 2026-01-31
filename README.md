@@ -66,8 +66,6 @@
 17. **行间公式：若无 `label`，替换 `equation` 为 `equation*`**  
     默认启用: ❌
 
-18. **去掉所有 Markdown 特征**  
-    默认启用: ❌
 
 ## 额外说明
 
@@ -151,6 +149,5 @@ pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath .
 
 - 邮箱：galvin.lai@outlook.com
 - GitHub: [GALVINLAI](https://github.com/GALVINLAI/formatting)
-
 
 

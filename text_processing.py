@@ -7,7 +7,6 @@ from latex_linter.parentheses_to_single_dollar import parentheses_to_single_doll
 from latex_linter.repair_display_brackets import repair_display_brackets
 from latex_linter.repair_inline_parentheses import repair_inline_parentheses
 from latex_linter.remove_extra_newlines import remove_extra_newlines
-from latex_linter.replace_all_markdown import replace_all_markdown
 from latex_linter.square_brackets_to_dollars import square_brackets_to_dollars
 from latex_linter.square_brackets_to_equations import square_brackets_to_equations
 from latex_linter.format_math_display_multiply_lines import format_aligns
@@ -102,10 +101,6 @@ def replace_text(content, options):
     # ====================================
     # 针对 Markdown 特性的功能
     # ====================================
-
-    # ---------- 去掉所有 Markdown 特征 ----------
-    if options.get('replace_all_markdown'):
-        content = replace_all_markdown(content)
 
     # ---------- 高数B讲义制作用 ----------
     if options.get('replace_fullwidth_punctuation'):
