@@ -1,10 +1,20 @@
 # 重要说明
-
+> 2026-01-26 声明：
+>
 > 2025 年下半年开始，GPT 复制的内容出现“公式定界符缺失反斜杠”的问题（如 `\[ ... \]` 变成 `[ ... ]`，`\(...\)` 变成 `( ... )`）。本版本新增对应修复功能以适配这一变化。
 >
 > 同时，本版本已移除所有与 Markdown 相关的选项。
+>
+> v2.0 是最新版
+
+# **exe程序下载链接** 
+
+- v2.0 (MAC 应用程序, WINDOWS 应用程序)  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+- v1.4 (WINDOWS 应用程序 )   https://pan.quark.cn/s/1ebd3ea4ca20 
+
 
 # 项目简介
+
 
 **LatexFormatting** 是一个用于格式化 LaTeX 和 Markdown 文件的实用工具。该工具提供了多种选项来规范化数学公式和文本格式，特别是对由 ChatGPT 生成的 LaTeX 公式进行处理。
 
@@ -75,7 +85,7 @@
 
 # 使用方法
 
-## 方法 1：从终端中打开（MAC，或者 WINDOWS 系统皆可）
+## 方法 1：从终端中打开（MAC 或者 WINDOWS 系统皆可）
 
 请确认安装了 `pyperclip` 库
 ```sh
@@ -86,9 +96,13 @@ pip install pyperclip
 python main.py
 ```
 
-## 方法 2：打包成可执行文件 `formatting.exe` 即可使用。支持多开。（仅限 WINDOWS 系统）
+## 方法 2：打包成可执行文件 `formatting.exe` 或者 MAC 应用程序 即可使用。支持多开。
 
-具体打包方法请看下面开发说明。【警告】 该软件可能会被杀毒软件识别并清除，请加入白名单。详情原因参考 [PyInstaller打包的exe被防毒软件报毒怎么办](https://blog.csdn.net/cclbanana/article/details/136010033)
+具体打包方法请看下面开发说明。
+
+WINDOWS exe: 该软件可能会被杀毒软件识别并清除，请加入白名单。详情原因参考 [PyInstaller打包的exe被防毒软件报毒怎么办](https://blog.csdn.net/cclbanana/article/details/136010033)
+
+MAC 应用程序: 左上角的关闭按钮没用，只能用 MAC+Q 退出
 
 ## ⚠️ 注意事项
 
@@ -110,8 +124,7 @@ python main.py
 - 必要的 Python 库：
   - `tkinter` （`tk` 是 python 标准库）
   - `pyperclip`
-  - `pyinstaller` （如需另外生成exe文件的话）
-  - 持续开发中，缺什么补什么吧
+  - `pyinstaller` （如需自己生成 exe文件 或者 mac 的应用程序的话）
 
 ## 项目结构
 
@@ -119,7 +132,8 @@ python main.py
 project/
 │
 ├── main.py                      # 主程序文件
-├── icon.ico                     # 程序图标
+├── icon.ico                     # Windows 程序图标
+├── icon.icns                    # mac 程序图标
 ├── text_processing.py           # 文本处理模块
 ├── file_operations.py           # 文件操作模块
 └── README.md                    # 开发说明（本文件）
@@ -135,13 +149,22 @@ project/
 
 详见根目录下另一个 `how_add_new_features.md` 文件。
 
-## 构建可执行文件 `formatting.exe` （仅限 WINDOWS 系统）
+## 构建可执行文件 `formatting` （WINDOWS 系统）
 
 在 `main.py` 所在的目录下运行如下，使用 `PyInstaller` 创建一个可执行exe文件：
 ```sh
 pyinstaller --onefile --noconsole --name formatting --icon=icon.ico --distpath ./ main.py
 ```
 或者直接在双击 `get_exe.bat`。
+
+## 构建应用程序 `formatting` （MAC 系统）
+
+```sh
+pyinstaller --onedir --windowed --name formatting --icon=icon.icns --distpath ./ main.py
+```
+
+--onefile 版本，启动会慢一些。
+
 
 ## 联系方式
 

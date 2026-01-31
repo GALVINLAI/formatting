@@ -388,7 +388,7 @@ output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=10, font
 output_text_widget.pack(fill=tk.BOTH, expand=True)
 
 # 添加复选框和按钮到右侧文本框容器
-auto_copy_checkbox_var = tk.BooleanVar()
+auto_copy_checkbox_var = tk.BooleanVar(value=True)
 auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制", variable=auto_copy_checkbox_var)
 auto_copy_checkbox.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -414,6 +414,7 @@ load_checkbox_states(LAST_STATE_NAME)
 # 窗口关闭时保存状态
 def on_closing():
     save_checkbox_states(LAST_STATE_NAME)
+    root.quit()
     root.destroy()
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
