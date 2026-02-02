@@ -1,13 +1,16 @@
 # 重要说明
-> 2026-01-26 v2.0 声明：
+> 2026-02-2 v2.0 声明：
 >
-> 2025 年下半年开始，GPT 复制的内容出现“公式定界符缺失反斜杠”的问题（如 `\[ ... \]` 变成 `[ ... ]`，`\(...\)` 变成 `( ... )`）。本版本新增对应修复功能以适配这一变化。
+> 2025 年下半年开始，GPT 复制的内容出现“公式定界符缺失反斜杠”的问题（如 `\[ ... \]` 变成 `[ ... ]`，`\(...\)` 变成 `( ... )`）。本版本 v2.0 新增对应修复功能以适配这一变化。
 >
 
 # **程序下载链接** 
 
-- v2.0 (MAC 应用程序, WINDOWS 应用程序)  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-- v1.4 (WINDOWS 应用程序 )   https://pan.quark.cn/s/1ebd3ea4ca20 
+- v2.0 (MAC 应用程序, WINDOWS 应用程序) 
+https://pan.quark.cn/s/992db931de30
+
+- v1.4 (WINDOWS 应用程序 )
+https://pan.quark.cn/s/48409a7b0b99
 
 
 # 项目简介
@@ -100,9 +103,10 @@ python main.py
 
 具体打包方法请看下面开发说明。
 
-WINDOWS exe: 该软件可能会被杀毒软件识别并清除，请加入白名单。详情原因参考 [PyInstaller打包的exe被防毒软件报毒怎么办](https://blog.csdn.net/cclbanana/article/details/136010033)
+- WINDOWS
+该软件可能会被杀毒软件识别并清除，请加入白名单。详情原因参考 [PyInstaller打包的exe被防毒软件报毒怎么办](https://blog.csdn.net/cclbanana/article/details/136010033) 另外开启比较慢，请忍耐。
 
-MAC 应用程序: 左上角的关闭按钮没用，只能用 MAC+Q 退出
+- MAC 应用程序: 左上角的关闭按钮没用，只能用 MAC+Q 退出。而且最上面一栏的功能按钮没用。
 
 ## ⚠️ 注意事项
 
