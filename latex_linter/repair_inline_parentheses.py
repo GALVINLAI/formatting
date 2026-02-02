@@ -23,19 +23,81 @@ def _is_mathish(text: str) -> bool:
     stripped = text.strip()
     if not stripped:
         return False
+    stripped_no_cmd = re.sub(r'\\[a-zA-Z]+', '', stripped)
     if re.search(r'[\u4e00-\u9fff\u30a0-\u30ff\u3040-\u309f\uac00-\ud7af]', stripped):
         return False
+    # English-like sentences should not be treated as math unless strong math signals exist.
+    if re.search(r'[A-Za-z]{3,}', stripped_no_cmd):
+        has_cmd = re.search(r'\\[a-zA-Z]+', stripped) is not None
+        has_eq = re.search(r'[=<>]', stripped) is not None
+        has_arith = re.search(
+            r'(?:[A-Za-z0-9]{1,2}|\\[a-zA-Z]+)\\s*[+*/-]\\s*(?:[A-Za-z0-9]{1,2}|\\[a-zA-Z]+)',
+            stripped
+        ) is not None
+        has_scripts = re.search(r'[\^_]', stripped) is not None
+        has_abs = re.search(r'\|[^|]+\|', stripped) is not None
+        words = re.findall(r'[A-Za-z]{2,}', stripped_no_cmd)
+        has_sentence_punct = re.search(r'[,:;.]', stripped) is not None
+        if has_cmd and len(words) == 0:
+            return True
+        if ' ' in stripped:
+            stopwords = {
+                'or', 'and', 'between', 'for', 'if', 'then', 'as', 'such', 'that', 'which',
+                'where', 'there', 'exists', 'only', 'with', 'without', 'on', 'in', 'at',
+                'from', 'to', 'by', 'of', 'the', 'a', 'an'
+            }
+            lower_words = {w.lower() for w in words}
+            if lower_words & stopwords and not (has_eq or has_arith):
+                return False
+            if len(words) >= 2 and has_scripts and not (has_eq or has_arith or has_abs):
+                return False
+        if ' ' in stripped and len(words) >= 2 and has_sentence_punct and not (has_eq or has_arith):
+            return False
+        if ' ' in stripped and len(words) >= 2 and not (has_eq or has_arith or has_scripts or has_abs):
+            return False
+        if ' ' in stripped and len(words) >= 1 and has_cmd and not (has_eq or has_arith or has_scripts or has_abs):
+            return False
+        if not (has_cmd or has_eq or has_arith or has_scripts or has_abs):
+            return False
     if re.search(r'\\[a-zA-Z]+', stripped):
         return True
     if re.search(r'[\^_]', stripped):
         return True
     if re.search(r'[=<>]', stripped):
         return True
-    if re.search(r'[A-Za-z0-9]\s*[+\-*/]\s*[A-Za-z0-9]', stripped):
+    if re.search(r'(?:[A-Za-z0-9]{1,2}|\\[a-zA-Z]+)\\s*[+*/-]\\s*(?:[A-Za-z0-9]{1,2}|\\[a-zA-Z]+)', stripped):
         return True
     if re.search(r'\|[^|]+\|', stripped):
         return True
     return False
+
+
+def _is_mathish_aggressive(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if re.search(r'[\u4e00-\u9fff\u30a0-\u30ff\u3040-\u309f\uac00-\ud7af]', stripped):
+        return False
+    if ' ' in stripped:
+        return False
+    if re.search(r'\\[a-zA-Z]+', stripped):
+        return True
+    if re.search(r'[\^_]', stripped):
+        return True
+    if re.fullmatch(r"[A-Za-z0-9]+", stripped):
+        return True
+    if re.fullmatch(r"[A-Za-z0-9]+['`’\u2032]", stripped):
+        return True
+    if re.fullmatch(r"[A-Za-z0-9\\_^{}'`’\u2032()]+", stripped):
+        return True
+    return False
+
+
+def _is_short_token(inner: str) -> bool:
+    stripped = inner.strip()
+    if not stripped or ' ' in stripped:
+        return False
+    return re.fullmatch(r"[A-Za-z0-9\\_^{}'`’\u2032()]{1,4}", stripped) is not None
 
 
 def _is_escaped(text: str, idx: int) -> bool:
@@ -60,7 +122,7 @@ def _find_parentheses_pairs(text: str):
     return pairs
 
 
-def _repair_inline_parentheses_plain(text: str) -> str:
+def _repair_inline_parentheses_plain(text: str, aggressive: bool = False) -> str:
     pairs = _find_parentheses_pairs(text)
     if not pairs:
         return text
@@ -74,8 +136,22 @@ def _repair_inline_parentheses_plain(text: str) -> str:
             continue
         if end + 1 < len(text) and re.match(r'[A-Za-z0-9_\\]', text[end + 1]):
             continue
-        if not _is_mathish(inner):
-            continue
+        if aggressive:
+            context = text[max(0, start - 12):start].lower()
+            in_whitelist_context = (
+                'e.g.' in context
+                or 'i.e.' in context
+                or 'cf.' in context
+                or 'see' in context
+                or 'w.r.t.' in context
+            )
+            if in_whitelist_context and not _is_short_token(inner):
+                continue
+            if not _is_mathish_aggressive(inner):
+                continue
+        else:
+            if not _is_mathish(inner):
+                continue
         candidates.append((start, end))
 
     if not candidates:
@@ -114,6 +190,17 @@ def repair_inline_parentheses(content: str) -> str:
     return ''.join(parts)
 
 
+def repair_inline_parentheses_aggressive(content: str) -> str:
+    """
+    激进策略：将短 token 类括号（如 (x), (n), (F')）也视为行内公式。
+    可能会误伤普通英文括号，用于需要尽量识别数学的场景。
+    """
+    parts = _MATH_SPAN_RE.split(content)
+    for i in range(0, len(parts), 2):
+        parts[i] = _repair_inline_parentheses_plain(parts[i], aggressive=True)
+    return ''.join(parts)
+
+
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
@@ -136,6 +223,10 @@ def repair_inline_parentheses(content: str) -> str:
         (
             "函数调用 f(x^2) 不应被替换。",
             "函数调用 f(x^2) 不应被替换。",
+        ),
+        (
+            "(Reason: (T_n) matches the first (n) derivatives of (f) at (a).)",
+            "(Reason: (T_n) matches the first (n) derivatives of (f) at (a).)",
         ),
         (
             "已有数学 $ (x+y) $ 不应被替换。",

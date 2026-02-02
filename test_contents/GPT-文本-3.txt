@@ -1,0 +1,113 @@
+下面给出**多元函数泰勒公式**（最常用的两种版本：**二阶矩阵形式**与**一般阶多重指标形式**），并给出一个**严格证明思路**：把多元问题沿直线一维化，再套用一元泰勒（这也是最干净的证明法）。
+
+---
+
+## 1) 二阶泰勒公式（最常用形式）
+
+设 (f:\mathbb{R}^n\to\mathbb{R})，在以 (x_0) 为中心的邻域内 (C^2)。令 (h=x-x_0)。则存在 (\xi\in(0,1)) 使得
+[
+f(x_0+h)=f(x_0)+\nabla f(x_0)^\top h+\frac12,h^\top \nabla^2 f(x_0+\xi h),h.
+]
+其中 (\nabla^2 f) 是 Hessian 矩阵。
+
+若进一步假设 (\nabla^2 f) 在 (x_0) 连续，则也常写成皮亚诺形式：
+[
+f(x_0+h)=f(x_0)+\nabla f(x_0)^\top h+\frac12,h^\top \nabla^2 f(x_0),h+o(|h|^2).
+]
+
+---
+
+## 2) 一般 (m) 阶泰勒公式（多重指标形式）
+
+### 多重指标记号
+
+令 (\alpha=(\alpha_1,\dots,\alpha_n)\in\mathbb{N}^n)，定义
+[
+|\alpha|=\alpha_1+\cdots+\alpha_n,\quad \alpha!=\alpha_1!\cdots \alpha_n!,\quad
+h^\alpha=\prod_{i=1}^n h_i^{\alpha_i},
+]
+[
+D^\alpha f=\frac{\partial^{|\alpha|}f}{\partial x_1^{\alpha_1}\cdots \partial x_n^{\alpha_n}}.
+]
+
+### 公式（拉格朗日型余项的一种常见表述：沿线段）
+
+若 (f\in C^{m+1}) 于 (x_0) 的邻域，则对任意 (h) 足够小，存在 (\xi\in(0,1)) 使
+[
+f(x_0+h)=\sum_{|\alpha|\le m}\frac{D^\alpha f(x_0)}{\alpha!},h^\alpha
+;+;
+\sum_{|\alpha|=m+1}\frac{D^\alpha f(x_0+\xi h)}{\alpha!},h^\alpha.
+]
+（注意：一般阶在多元情形下“单一项”的拉格朗日余项并不总能像一元那样写成某个常数乘 (|h|^{m+1}) 的唯一形式；上面这种“同阶项求和、在同一点取值”的表达非常常用且干净。）
+
+若 (D^\alpha f)（(|\alpha|=m)）在 (x_0) 连续，则皮亚诺形式是
+[
+f(x_0+h)=\sum_{|\alpha|\le m}\frac{D^\alpha f(x_0)}{\alpha!},h^\alpha+o(|h|^{m}).
+]
+
+---
+
+## 3) 证明（核心：一维化 + 一元泰勒）
+
+### Step 1：沿线段把多元函数变成一元函数
+
+固定 (h)，定义一元函数
+[
+g(t):=f(x_0+t h),\qquad t\in[0,1].
+]
+由于 (f\in C^{m+1})，可得 (g\in C^{m+1}([0,1]))。
+
+### Step 2：计算 (g^{(k)}(t)) 与多重指标的关系
+
+用链式法则反复求导，可得（这是标准恒等式）：
+[
+g^{(k)}(t)=\sum_{|\alpha|=k}\frac{k!}{\alpha!},D^\alpha f(x_0+t h),h^\alpha.
+]
+直观理解：每求一次导数都会带出一个方向 (h)，最终得到“所有 (k) 阶偏导按组合数加权的和”。
+
+> 你可以先验证 (k=1,2)：
+> (g'(t)=\nabla f(x_0+t h)^\top h)。
+> (g''(t)=h^\top \nabla^2 f(x_0+t h)h)。
+> 一般 (k) 阶就是上述多重指标的版本。
+
+### Step 3：对 (g) 在 (t=0) 做一元泰勒（拉格朗日余项）
+
+一元泰勒给出：存在 (\xi\in(0,1))
+[
+g(1)=\sum_{k=0}^m \frac{g^{(k)}(0)}{k!}+\frac{g^{(m+1)}(\xi)}{(m+1)!}.
+]
+把 Step 2 的表达代入：
+
+* 对于主和：
+  [
+  \frac{g^{(k)}(0)}{k!}
+  =\sum_{|\alpha|=k}\frac{1}{\alpha!}D^\alpha f(x_0),h^\alpha.
+  ]
+  把 (k=0) 到 (m) 合并，就得到
+  [
+  \sum_{k=0}^m\frac{g^{(k)}(0)}{k!}
+  =\sum_{|\alpha|\le m}\frac{D^\alpha f(x_0)}{\alpha!},h^\alpha.
+  ]
+
+* 对于余项：
+  [
+  \frac{g^{(m+1)}(\xi)}{(m+1)!}
+  =\sum_{|\alpha|=m+1}\frac{D^\alpha f(x_0+\xi h)}{\alpha!},h^\alpha.
+  ]
+
+最后注意 (g(1)=f(x_0+h))。于是得到第 2 节的多元泰勒公式，证毕。
+
+---
+
+## 4) 二阶公式如何从一般式得到
+
+取 (m=1)：
+
+* 主项 (|\alpha|\le 1)：就是 (f(x_0)+\nabla f(x_0)^\top h)
+* 余项 (|\alpha|=2)：可以整理成 (\frac12 h^\top \nabla^2 f(x_0+\xi h)h)
+
+这就回到第 1 节的二阶版本。
+
+---
+
+如果你接下来关心的是**余项的上界**（例如 (|R_{m+1}(h)|\le C|h|^{m+1}) 的条件与常数怎么取），我可以给出一个“用多重指标 + 上界范数”的标准估计。

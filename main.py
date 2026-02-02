@@ -344,6 +344,7 @@ options = [
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
     ("repair_display_brackets", "将独立行的 [ ... ] 识别为 \\[ ... \\] 【GPT缺失斜杠】", True),
     ("repair_inline_parentheses", "将疑似数学 ( ... ) 识别为 \\( ... \\)【GPT缺失斜杠】（可能不奏效）", True),
+    ("repair_inline_parentheses_aggressive", "将 (a)/(x)/(f)/(F) 等识别为 \\( ... \\)【激进】（可能误伤）", False),
     ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT】", True),
     ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT】", True),
     ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
@@ -356,6 +357,8 @@ options = [
     ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
     ("format_aligns", "行间公式：规范 align 环境", False),
     ("equations_to_equations_star", "行间公式：若无 label, 替换 equation 为 equation*", False),
+    ("remove_markdown", "一键去除 Markdown 标记（标题/加粗/斜体）", False),
+    ("markdown_to_latex", "一键将 Markdown 标记变成 LaTeX（标题/加粗/斜体）", False),
 ]
 
 checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}

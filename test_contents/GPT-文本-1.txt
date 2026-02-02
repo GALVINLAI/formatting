@@ -1,0 +1,92 @@
+ 你说的“流形优化”通常指 **在光滑流形（manifold）上做无约束优化**：变量不在 (\mathbb R^n) 的任意点，而被约束在某个几何对象 (\mathcal M) 上（如球面、Stiefel、SPD、低秩矩阵流形等）。关键区别是：**梯度/海瑟/步长更新都必须在切空间里做，并通过 retraction 回到流形上**。
+
+---
+
+## 1) 问题形式
+
+[
+\min_{x\in\mathcal M}\ f(x),\qquad \mathcal M\subset \mathbb R^n\ \text{或抽象流形}
+]
+
+给定一个黎曼度量 (\langle \cdot,\cdot\rangle_x)（常用嵌入流形取诱导度量），在每个 (x) 处有切空间 (T_x\mathcal M)。
+
+---
+
+## 2) 黎曼梯度（Riemannian gradient）
+
+定义为唯一满足
+[
+\langle \mathrm{grad},f(x),,\eta\rangle_x = Df(x)[\eta],\quad \forall \eta\in T_x\mathcal M
+]
+的切向量 (\mathrm{grad},f(x)\in T_x\mathcal M)。
+
+### 嵌入流形的常用计算公式
+
+若 (\mathcal M\subset\mathbb R^n) 且用欧氏度量，则
+[
+\mathrm{grad},f(x)=\Pi_x\big(\nabla \tilde f(x)\big),
+]
+其中 (\tilde f) 是在环境空间的延拓，(\nabla \tilde f) 是普通欧氏梯度，(\Pi_x) 是到切空间的正交投影。
+
+---
+
+## 3) 更新：retraction（回缩）代替 “(x+\alpha p)”
+
+因为 (x+\alpha p) 不一定还在 (\mathcal M)，所以用
+[
+x_{k+1}=R_{x_k}(\alpha_k \eta_k),\quad \eta_k\in T_{x_k}\mathcal M.
+]
+(R_x: T_x\mathcal M\to \mathcal M) 满足 (R_x(0)=x)，且一阶近似于指数映射（exp map）。实践里 retraction 比 exp map 便宜很多。
+
+最基础算法：**黎曼梯度下降**
+[
+\eta_k=-\mathrm{grad},f(x_k),\qquad x_{k+1}=R_{x_k}(\alpha_k\eta_k).
+]
+
+---
+
+## 4) 黎曼海瑟（Riemannian Hessian）
+
+黎曼海瑟是“梯度场的协变导数”：
+[
+\mathrm{Hess},f(x)[\eta] = \nabla^{\mathcal M}*{\eta}\big(\mathrm{grad},f\big)(x)\in T_x\mathcal M.
+]
+用于二阶方法（牛顿、信赖域）：
+[
+\mathrm{Hess},f(x_k)[\eta_k]=-\mathrm{grad},f(x_k),\quad x*{k+1}=R_{x_k}(\eta_k).
+]
+
+---
+
+## 5) 最常见流形例子（给出投影/回缩公式）
+
+### (A) 球面 (\mathbb S^{n-1}={x:|x|=1})
+
+* 切空间：(T_x\mathbb S^{n-1}={\eta: x^\top \eta=0})
+* 投影：(\Pi_x(v)=v-(x^\top v)x)
+* 回缩：(R_x(\eta)=\dfrac{x+\eta}{|x+\eta|})
+
+### (B) Stiefel 流形 (\mathrm{St}(n,p)={X\in\mathbb R^{n\times p}: X^\top X=I})
+
+* 切空间：(T_X\mathrm{St}={\eta: X^\top\eta+\eta^\top X=0})
+* 常用回缩：
+  **QR 回缩**：(X+\eta=QR\Rightarrow R_X(\eta)=Q)
+  或 **极分解回缩**：(R_X(\eta)=(X+\eta)(I+\eta^\top\eta)^{-1/2})
+
+### (C) SPD 流形 (\mathbb S_{++}^n)
+
+常见度量不同（仿射不变度量等），梯度/回缩形式会变；这块通常按你选的度量来写。
+
+---
+
+## 6) 与“约束优化”的关系（一句话）
+
+把 (\min f(x)) s.t. (x\in\mathcal M) 视为约束优化时，KKT/投影梯度条件在光滑情形会等价于
+[
+\mathrm{grad},f(x^\star)=0
+]
+（驻点条件），但算法实现上流形优化更“几何化”：全程在切空间走、用回缩回到流形。
+
+---
+
+如果你告诉我你关心的是哪个流形（球面 / Stiefel / Grassmann / 低秩 / SPD / 量子态密度矩阵等），以及你要**一阶法**还是**二阶法（信赖域/牛顿）**，我可以把 **(\Pi_x)、(\mathrm{grad})、(\mathrm{Hess})、retraction** 全套公式按你的场景写成可直接用的推导与算法步骤。

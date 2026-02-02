@@ -1,5 +1,6 @@
 __pycache__/
 build/
+dist/
 .git/
 .idea/
 dev_note.md
@@ -7,6 +8,12 @@ dev_note.md
 *.exe
 *.spec
 *.json
+*.icns
+*.dmg
+*.app
+.DS_Store
+__MACOSX/
+formatting/
 
 *.log
 *.pid

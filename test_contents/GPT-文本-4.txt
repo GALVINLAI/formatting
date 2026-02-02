@@ -1,0 +1,74 @@
+### (English translation of your question)
+
+“You wrote the Euclidean random subspace gradient-projection method (RSGP). What’s its complexity if (f) is **nonconvex** and we use a **fixed stepsize**?”
+
+---
+
+## Iteration complexity (nonconvex, fixed stepsize)
+
+Assume the standard smoothness condition:
+
+* (f) is (L)-smooth: (|\nabla f(x)-\nabla f(y)|\le L|x-y|).
+* Each iteration samples a random (p)-dimensional subspace (\mathcal S_k) with an orthonormal basis (S_k\in\mathbb R^{n\times p}) ((S_k^\top S_k=I_p)), and uses
+  [
+  x_{k+1}=x_k-\alpha, P_k \nabla f(x_k),\qquad P_k=S_kS_k^\top.
+  ]
+* The subspace is **isotropic** (e.g., uniform random (p)-subspace / random orthonormal columns), so
+  [
+  \mathbb E[P_k]=\frac{p}{n}I
+  \quad\Rightarrow\quad
+  \mathbb E\big[|P_k g|^2\big]=\frac{p}{n}|g|^2.
+  ]
+
+### One-step expected decrease
+
+By (L)-smoothness,
+[
+f(x_{k+1})\le f(x_k)-\alpha \langle g_k, P_k g_k\rangle+\frac{L\alpha^2}{2}|P_k g_k|^2,
+]
+and since (\langle g, Pg\rangle=|Pg|^2),
+[
+\mathbb E[f(x_{k+1})]\le \mathbb E[f(x_k)]-\Bigl(\alpha-\frac{L\alpha^2}{2}\Bigr)\mathbb E|P_k g_k|^2.
+]
+If (0<\alpha\le \frac{1}{L}), then (\alpha-\frac{L\alpha^2}{2}\ge \frac{\alpha}{2}), hence
+[
+\mathbb E[f(x_{k+1})]\le \mathbb E[f(x_k)]-\frac{\alpha}{2}\cdot \frac{p}{n},\mathbb E|g_k|^2.
+]
+
+### Complexity to reach (\mathbb E|\nabla f|^2\le \varepsilon)
+
+Let (f_\star) be a lower bound of (f) (e.g., (f_\star=\inf_x f(x))). Summing for (k=0,\dots,K-1),
+[
+\frac{1}{K}\sum_{k=0}^{K-1}\mathbb E|g_k|^2
+;\le;
+\frac{2n,(f(x_0)-f_\star)}{\alpha p}\cdot \frac{1}{K}.
+]
+Therefore, if you output a random iterate among ({0,\dots,K-1}) or use (\min_{k<K}),
+[
+\min_{0\le k\le K-1}\mathbb E| \nabla f(x_k)|^2 \le \varepsilon
+\quad\text{is guaranteed when}\quad
+K ;\ge; \frac{2n,(f(x_0)-f_\star)}{\alpha p,\varepsilon}.
+]
+
+**In particular, with (\alpha=\frac{1}{L}):**
+[
+K ;=; \mathcal O!\left(\frac{nL,(f(x_0)-f_\star)}{p,\varepsilon}\right).
+]
+
+**Takeaway:** compared with full gradient descent ((\mathcal O(L\Delta/\varepsilon))), RSGP slows by a factor (\frac{n}{p}) in iteration count (because you only move in a (p)-dimensional random subspace each step).
+
+---
+
+## Per-iteration cost (what you actually pay)
+
+* If you compute the **full gradient** (g_k\in\mathbb R^n): cost is whatever (\nabla f) costs + projection cost.
+* Projection:
+
+  * If (S_k^\top S_k=I_p): (P_k g_k = S_k(S_k^\top g_k)) costs **(O(np))**.
+  * If not orthonormal: (P_k g_k=S_k(S_k^\top S_k)^{-1}S_k^\top g_k) adds forming/inverting a (p\times p) matrix: typically **(O(np^2+p^3))** (but you’d usually orthonormalize (S_k) anyway).
+
+So if you *don’t* have a cheap way to avoid full gradients, the wall-clock advantage is not from gradient cost reduction—only from algorithmic structure.
+
+---
+
+If you tell me your **sampling model** for (S_k) (uniform random subspace vs. coordinate blocks vs. Gaussian sketch) I can state the exact (\mathbb E|P_k g|^2) factor and adjust the bound (it becomes (\frac{p}{n}) only for isotropic/uniform sketches).

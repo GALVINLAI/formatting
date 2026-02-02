@@ -5,13 +5,15 @@ from latex_linter.format_math_display import format_equations, format_dollars, f
 from latex_linter.format_math_inline import format_single_dollar, format_parentheses
 from latex_linter.parentheses_to_single_dollar import parentheses_to_single_dollar
 from latex_linter.repair_display_brackets import repair_display_brackets
-from latex_linter.repair_inline_parentheses import repair_inline_parentheses
+from latex_linter.repair_inline_parentheses import repair_inline_parentheses, repair_inline_parentheses_aggressive
 from latex_linter.remove_extra_newlines import remove_extra_newlines
 from latex_linter.square_brackets_to_dollars import square_brackets_to_dollars
 from latex_linter.square_brackets_to_equations import square_brackets_to_equations
 from latex_linter.format_math_display_multiply_lines import format_aligns
 from latex_linter.equations_to_equations_star import equations_to_equations_star 
 from latex_linter.replace_fullwidth_punctuation import replace_fullwidth_punctuation
+from latex_linter.remove_markdown import remove_markdown
+from latex_linter.markdown_to_latex import markdown_to_latex
 
 def replace_text(content, options):
     """
@@ -41,6 +43,10 @@ def replace_text(content, options):
     # ---------- GPT 缺失斜杠：修复行内 ( ... ) ----------
     if options.get('repair_inline_parentheses'):
         content = repair_inline_parentheses(content)
+
+    # ---------- GPT 缺失斜杠：修复行内 ( ... )（激进策略） ----------
+    if options.get('repair_inline_parentheses_aggressive'):
+        content = repair_inline_parentheses_aggressive(content)
 
     # ---------- 行内公式：规范 $ ... $ 环境 ----------
     if options.get('format_single_dollar'):
@@ -101,6 +107,14 @@ def replace_text(content, options):
     # ====================================
     # 针对 Markdown 特性的功能
     # ====================================
+
+    # ---------- 一键去除 Markdown 标记 ----------
+    if options.get('remove_markdown'):
+        content = remove_markdown(content)
+
+    # ---------- 一键把 Markdown 标记变成 LaTeX ----------
+    if options.get('markdown_to_latex'):
+        content = markdown_to_latex(content)
 
     # ---------- 高数B讲义制作用 ----------
     if options.get('replace_fullwidth_punctuation'):
