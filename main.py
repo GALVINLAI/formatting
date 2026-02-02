@@ -344,7 +344,7 @@ options = [
     ("remove_extra_newlines", "将多行空行变成单行空行", True),
     ("repair_display_brackets", "将独立行的 [ ... ] 识别为 \\[ ... \\] 【GPT缺失斜杠】", True),
     ("repair_inline_parentheses", "将疑似数学 ( ... ) 识别为 \\( ... \\)【GPT缺失斜杠】（可能不奏效）", True),
-    ("repair_inline_parentheses_aggressive", "将 (a)/(x)/(f)/(F) 等识别为 \\( ... \\)【激进】（可能误伤）", False),
+    ("repair_inline_parentheses_aggressive", "将 (a)/(x)/(f)/(F) 等识别为 \\( ... \\)【激进】（可能误伤）", True),
     ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT】", True),
     ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT】", True),
     ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
