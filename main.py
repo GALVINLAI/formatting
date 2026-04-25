@@ -1,426 +1,684 @@
-import tkinter as tk
-from tkinter import messagebox, ttk
-import pyperclip
-import json
-from text_processing import replace_text  # 你的自定义文本处理模块
-from file_operations import select_files, replace_text_in_files, select_folder, get_files_in_folder  # 你的自定义文件操作模块
-from datetime import datetime
-from functools import partial
+"""
+LatexFormatting — PySide6 GUI 版本 (紧凑左栏布局)
+=====================================================
+用于格式化 LaTeX 和 Markdown 文件的实用工具。
+原 Tkinter 版本: main.py / formatting.pyw
+PySide6 版本: main_pyside6.py
 
-# 定义元数据
-metadata = {
+布局说明:
+  左栏: 标签切换 + 单栏复选框
+  右栏: 上=输出框 → 中=操作按钮 → 下=输入框
+  使「粘贴→查看结果→复制」操作路径最短
+"""
+
+import sys
+import json
+
+from PySide6.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+    QPushButton, QCheckBox, QComboBox, QPlainTextEdit,
+    QGroupBox, QDialog, QLineEdit, QLabel, QMessageBox,
+    QScrollArea, QFrame,
+)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont, QIcon
+
+from text_processing import replace_text
+from file_operations import (
+    select_files, replace_text_in_files, select_folder, get_files_in_folder,
+)
+
+# ============================================================
+# 元数据
+# ============================================================
+METADATA = {
     "title": "LatexFormatting (Latex数学公式源码格式化工具)",
     "author": "赖小戴",
-    "version": "2.0",
-    "update_date": "2026-01-31",
+    "version": "2.0-pyside6",
+    "update_date": "2026-04-25",
     "description": "用于格式化LaTeX和Markdown文件的实用工具。",
     "resource_url": "https://github.com/GALVINLAI/formatting",
     "email": "laizhijian100@outlook.com",
 }
 
-# 保存复选框状态的文件名
 CHECKBOX_STATE_FILE = "checkbox_states.json"
-LAST_STATE_NAME = "上一次关闭时状态"
+LAST_STATE_KEY = "_last_state"
+PRESETS_KEY = "presets"
+AUTO_COPY_KEY = "_auto_copy"
 
-class ToolTip:
-    def __init__(self, widget, text):
-        self.widget = widget
-        self.text = text
-        self.tooltip = None
-        self.id = None
-        widget.bind("<Enter>", self.schedule_tooltip)
-        widget.bind("<Leave>", self.hide_tooltip)
 
-    def schedule_tooltip(self, event):
-        self.id = self.widget.after(700, self.show_tooltip)
-
-    def show_tooltip(self):
-        if self.tooltip or not self.text:
-            return
-        x, y, _, _ = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 25
-        self.tooltip = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(tw, text=self.text, justify='left',
-                         background="#ffffff", relief='solid', borderwidth=1,
-                         wraplength=200)
-        label.pack(ipadx=1)
-
-    def hide_tooltip(self, event):
-        if self.id:
-            self.widget.after_cancel(self.id)
-            self.id = None
-        if self.tooltip:
-            self.tooltip.destroy()
-            self.tooltip = None
-
-def get_options():
-    """
-    获取所有复选框的值，返回一个包含所有选项的字典。
-    """
-    return {local_key: var.get() for local_key, var in checkbox_vars.items()}
-
-def save_checkbox_states(state_name=LAST_STATE_NAME):
-    """
-    保存复选框的状态到文件。
-    """
-    options = get_options()
-    options["auto_copy"] = auto_copy_checkbox_var.get()
-
-    all_states = load_all_states()
-    all_states[state_name] = options
-
-    with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(all_states, f, ensure_ascii=False, indent=4)
-
-    update_state_menu()
-
-def load_checkbox_states(state_name=None, show_warning=False):
-    """
-    从文件加载复选框状态。
-    """
+def load_all_data():
+    """加载完整的状态文件。返回 { PRESETS_KEY: {...}, LAST_STATE_KEY: {...}, AUTO_COPY_KEY: bool }"""
     try:
         with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
-            all_states = json.load(f)
-            if state_name and state_name in all_states:
-                options = all_states[state_name]
-                for key, value in options.items():
-                    if key in checkbox_vars:
-                        checkbox_vars[key].set(value)
-                if "auto_copy" in options:
-                    auto_copy_checkbox_var.set(options["auto_copy"])
-                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
-                update_state_menu()  # 更新菜单显示
-            elif show_warning:
-                messagebox.showwarning("警告", "状态名称无效或不存在。")
+            return json.load(f)
     except FileNotFoundError:
-        pass
+        return {PRESETS_KEY: {}, LAST_STATE_KEY: {}, AUTO_COPY_KEY: True}
 
+
+def save_all_data(data):
+    """将完整数据写入状态文件。"""
+    with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def list_presets(data):
+    """返回所有用户预设的名称列表。"""
+    return list(data.get(PRESETS_KEY, {}).keys())
+
+
+def get_preset(data, name):
+    """获取指定预设的选项字典。"""
+    return data.get(PRESETS_KEY, {}).get(name, {})
+
+
+def set_preset(data, name, options):
+    """设置（保存/覆盖）一个预设。"""
+    if PRESETS_KEY not in data:
+        data[PRESETS_KEY] = {}
+    data[PRESETS_KEY][name] = dict(options)
+
+
+def delete_preset(data, name):
+    """删除一个预设。"""
+    data.get(PRESETS_KEY, {}).pop(name, None)
+
+
+def rename_preset(data, old_name, new_name):
+    """重命名一个预设。"""
+    presets = data.get(PRESETS_KEY, {})
+    if old_name in presets:
+        presets[new_name] = presets.pop(old_name)
+
+
+def get_last_state(data):
+    """获取上次关闭时的状态。"""
+    return data.get(LAST_STATE_KEY, {})
+
+
+def set_last_state(data, options):
+    """保存上次关闭时的状态。"""
+    data[LAST_STATE_KEY] = dict(options)
+
+
+def get_auto_copy(data):
+    """获取自动复制设置。"""
+    return data.get(AUTO_COPY_KEY, True)
+
+
+def set_auto_copy(data, value):
+    """设置自动复制。"""
+    data[AUTO_COPY_KEY] = bool(value)
+
+# ============================================================
+# 选项定义: (key, 显示文本, 默认值, 分组)
+# 分组: "common"=常用, "formula"=公式, "general"=通用
+# ============================================================
+OPTIONS = [
+    # --- 常用（默认开启项 + GPT修复）---
+    ("add_space_between_cjk_and_english", "中日韩字符与英文间加空格", False, "common"),
+    ("remove_extra_newlines", "多行空行合并为单行", True, "common"),
+    ("repair_display_brackets", "修复 [ … ] → \\[ … \\] 【GPT缺失斜杠】", False, "common"),
+    ("repair_inline_parentheses", "修复 ( … ) → \\( … \\) 【GPT缺失斜杠】", False, "common"),
+    ("repair_inline_parentheses_aggressive", "修复 ( ) 【激进·可能误伤】", False, "common"),
+    ("parentheses_to_single_dollar", "\\( … \\) → $ … $ 【适合ChatGPT】", True, "common"),
+    ("square_brackets_to_dollars", "\\[ … \\] → $$ … $$ 【适合ChatGPT】", True, "common"),
+
+    # --- 公式（定界符转换 + 格式规范）---
+    ("equations_to_dollars", "equation → $$ … $$", False, "formula"),
+    ("square_brackets_to_equations", "\\[ … \\] → equation", False, "formula"),
+    ("dollars_to_equations", "$$ … $$ → equation", False, "formula"),
+    ("format_single_dollar", "规范 $ … $ 环境", False, "formula"),
+    ("format_parentheses", "规范 \\( … \\) 环境", False, "formula"),
+    ("format_equations", "规范 equation 环境", False, "formula"),
+    ("format_dollars", "规范 $$ … $$ 环境", False, "formula"),
+    ("format_square_brackets", "规范 \\[ … \\] 环境", False, "formula"),
+    ("format_aligns", "规范 align 环境", False, "formula"),
+    ("equations_to_equations_star", "equation → equation* (无label时)", False, "formula"),
+
+    # --- 通用（Markdown + 其他）---
+    ("remove_markdown", "一键去除 Markdown 标记", False, "general"),
+    ("markdown_to_latex", "Markdown → LaTeX", False, "general"),
+    ("replace_fullwidth_punctuation", "全角标点替换（高数B讲义用）", False, "general"),
+]
+
+# 标签分组定义
+TAB_GROUPS = [
+    ("常用", "common"),
+    ("公式", "formula"),
+    ("通用", "general"),
+]
+
+
+# ============================================================
+# 状态管理函数
+# ============================================================
 def load_all_states():
-    """
-    加载所有保存的状态。
-    """
     try:
         with open(CHECKBOX_STATE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
 
-def update_output_text(event=None):
-    """
-    获取输入文本框中的文本，根据选项进行处理，并将修改后的文本显示在输出文本框中，同时复制到剪贴板（如果复选框勾选）。
-    """
-    input_text = input_text_widget.get("1.0", tk.END)  # 获取输入文本框的内容
-    options = get_options()  # 获取选项
-    modified_text = replace_text(input_text, options)  # 处理文本
-    output_text_widget.delete("1.0", tk.END)  # 清空输出文本框
-    output_text_widget.insert(tk.END, modified_text)  # 插入修改后的文本
-    if auto_copy_checkbox_var.get():  # 如果自动复制复选框被选中
-        pyperclip.copy(modified_text)  # 复制修改后的文本到剪贴板
-    check_state_match()  # 检查当前状态是否匹配任何已保存的状态
 
-def copy_to_clipboard():
-    """
-    将输出文本框中的内容复制到剪贴板。
-    """
-    modified_text = output_text_widget.get("1.0", tk.END)
-    pyperclip.copy(modified_text)
-
-def clear_text_boxes():
-    """
-    清空输入和输出文本框的内容。
-    """
-    input_text_widget.delete("1.0", tk.END)
-    output_text_widget.delete("1.0", tk.END)
-
-def process_files(file_paths):
-    """
-    根据选项处理选择的文件，并显示完成信息。
-    """
-    if file_paths:
-        options = get_options()  # 获取选项
-        replace_text_in_files(file_paths, options)  # 处理文件
-        messagebox.showinfo("完成", "所有选中的文件已完成修改。")
-    else:
-        print("未选择文件")
-
-def open_and_replace_files():
-    """
-    打开文件选择对话框并处理选择的文件。
-    """
-    file_paths = select_files()
-    process_files(file_paths)
-
-def open_and_replace_files_in_folder():
-    """
-    打开文件夹选择对话框并处理文件夹中的所有文件。
-    """
-    folder_path = select_folder()
-    if folder_path:
-        file_paths = get_files_in_folder(folder_path)
-        process_files(file_paths)
-    else:
-        print("未选择文件夹")
-
-def show_about():
-    """
-    显示关于信息的对话框。
-    """
-    about_message = (
-        f"{metadata['title']}\n\n"
-        f"作者: {metadata['author']}\n"
-        f"版本: {metadata['version']}\n"
-        f"更新日期：{metadata['update_date']}\n\n"
-        f"{metadata['description']}\n\n"
-        f"资源地址：{metadata['resource_url']}\n"
-        f"联系邮箱：{metadata['email']}"
-    )
-    messagebox.showinfo("关于", about_message)
-
-def create_button(frame, text, command, tooltip_text):
-    """
-    创建一个按钮并添加到指定的框架中。
-    """
-    button = ttk.Button(frame, text=text, command=command)
-    button.pack(side=tk.LEFT, padx=5, pady=5)
-    ToolTip(button, tooltip_text)  # 添加 tooltip
-
-def create_checkbox(frame, text, var, row, col):
-    """
-    创建一个复选框并添加到指定的框架中，指定行和列。
-    """
-    checkbox = ttk.Checkbutton(frame, text=text, variable=var, takefocus=False)
-    padx = (10, 30) if col == 0 else (30, 10)
-    checkbox.grid(row=row, column=col, sticky='w', padx=padx, pady=3)
-    var.trace_add('write', on_checkbox_change)  # 添加 trace 方法
-
-def update_state_menu():
-    """
-    更新下拉菜单，显示所有保存的状态。
-    """
-    state_menu['menu'].delete(0, 'end')
-    all_states = load_all_states()
-    current_state = CURRENT_STATE_VAR.get()
-    for state_name in all_states.keys():
-        label = state_name
-        if state_name == current_state:
-            label = f"✓ {state_name}"  # 在当前状态前添加打勾标记
-        state_menu['menu'].add_command(label=label, command=partial(load_checkbox_states, state_name, True))
+def save_states_to_file(all_states):
+    with open(CHECKBOX_STATE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(all_states, f, ensure_ascii=False, indent=4)
 
 
+# ============================================================
+# 保存状态对话框（另存为）
+# ============================================================
+class SaveAsDialog(QDialog):
+    def __init__(self, parent=None, existing_names=None):
+        super().__init__(parent)
+        self.setWindowTitle("另存为")
+        self.setFixedSize(400, 100)
+        self.setModal(True)
+        self._existing = existing_names or []
 
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(15, 15, 15, 15)
+        layout.addWidget(QLabel("配置名称:"))
+        self.name_edit = QLineEdit()
+        self.name_edit.setPlaceholderText("输入配置名称...")
+        layout.addWidget(self.name_edit)
 
-def open_save_state_popup():
-    """
-    打开一个弹出窗口，输入状态名称以保存当前状态。
-    """
-    popup = tk.Toplevel(root)
-    popup.title("保存状态")
+        save_btn = QPushButton("保存")
+        save_btn.clicked.connect(self.on_save)
+        layout.addWidget(save_btn)
 
-    tk.Label(popup, text="输入新状态名称:").pack(side=tk.LEFT, padx=5, pady=5)
-    state_name_entry = ttk.Entry(popup, width=20)
-    state_name_entry.pack(side=tk.LEFT, padx=5, pady=5)
-
-    def on_save():
-        state_name = state_name_entry.get()
-        if state_name:
-            all_states = load_all_states()
-            if state_name in all_states:
-                # 提示是否覆盖现有状态
-                if messagebox.askyesno("确认", f"状态 '{state_name}' 已存在。是否覆盖？"):
-                    save_checkbox_states(state_name)
-                    CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
-                    popup.destroy()
-                else:
-                    popup.destroy()
-            else:
-                save_checkbox_states(state_name)
-                CURRENT_STATE_VAR.set(state_name)  # 更新当前状态变量
-                popup.destroy()
-        else:
-            messagebox.showwarning("警告", "请提供一个状态名称。")
-
-    save_button = ttk.Button(popup, text="保存", command=on_save)
-    save_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-def check_state_match():
-    """
-    检查当前复选框状态是否匹配任何已保存的状态。
-    如果不匹配，则清除当前状态。
-    """
-    options = get_options()
-    options["auto_copy"] = auto_copy_checkbox_var.get()
-    all_states = load_all_states()
-
-    for state_name, saved_options in all_states.items():
-        if options == saved_options:
-            CURRENT_STATE_VAR.set(state_name)
-            update_state_menu()
+    def on_save(self):
+        name = self.name_edit.text().strip()
+        if not name:
+            QMessageBox.warning(self, "警告", "请提供一个配置名称。")
             return
 
-    CURRENT_STATE_VAR.set("")  # 没有匹配的状态
-    update_state_menu()
+        if name in self._existing:
+            reply = QMessageBox.question(
+                self, "确认",
+                f"配置 '{name}' 已存在。是否覆盖？",
+                QMessageBox.Yes | QMessageBox.No,
+            )
+            if reply == QMessageBox.No:
+                return
 
-def on_checkbox_change(*args):
-    """
-    当复选框状态发生变化时调用的函数。
-    """
-    check_state_match()
+        self._result = name
+        self.accept()
 
-# 创建主窗口
-root = tk.Tk()
-root.title(f"{metadata['title']} 版本: {metadata['version']} 更新日期：{metadata['update_date']}")
-# 设置窗口图标
-root.iconbitmap("icon.ico")
+    def result_name(self):
+        return getattr(self, '_result', None)
 
-# 在创建主窗口后初始化 CURRENT_STATE_VAR
-CURRENT_STATE_VAR = tk.StringVar(root)
 
-# 设置样式
-style = ttk.Style()
-style.configure("TButton", padding=1, relief="flat", background="#ccc")
-style.configure("TCheckbutton", padding=3)
-style.configure("TRadiobutton", padding=3)
+# ============================================================
+# 重命名对话框
+# ============================================================
+class RenameDialog(QDialog):
+    def __init__(self, parent=None, old_name="", existing_names=None):
+        super().__init__(parent)
+        self.setWindowTitle("重命名配置")
+        self.setFixedSize(400, 100)
+        self.setModal(True)
+        self._old_name = old_name
+        self._existing = existing_names or []
 
-# 创建按钮框架并添加按钮
-button_frame = ttk.Frame(root)
-button_frame.pack(pady=10)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(15, 15, 15, 15)
+        layout.addWidget(QLabel("新名称:"))
+        self.name_edit = QLineEdit(old_name)
+        self.name_edit.selectAll()
+        layout.addWidget(self.name_edit)
 
-# 创建批量修改文件或文件夹的下拉菜单
-bulk_menu_button = ttk.Menubutton(button_frame, text="批量修改文件或文件夹", direction="below")
-bulk_menu = tk.Menu(bulk_menu_button, tearoff=0)
-bulk_menu.add_command(label="选择md或tex文件并修改", command=open_and_replace_files)
-bulk_menu.add_command(label="选择文件夹并修改所有md和tex文件", command=open_and_replace_files_in_folder)
-bulk_menu_button["menu"] = bulk_menu
-bulk_menu_button.pack(side=tk.LEFT, padx=5, pady=5)
+        rename_btn = QPushButton("重命名")
+        rename_btn.clicked.connect(self.on_rename)
+        layout.addWidget(rename_btn)
 
-# 创建状态选择下拉菜单
-state_var = tk.StringVar(root)
-state_menu = ttk.OptionMenu(button_frame, state_var, "选择任务状态", *[])
-state_menu.pack(side=tk.LEFT, padx=5)
-update_state_menu()
+    def on_rename(self):
+        name = self.name_edit.text().strip()
+        if not name:
+            QMessageBox.warning(self, "警告", "名称不能为空。")
+            return
 
-# 添加保存状态按钮
-save_button = ttk.Button(button_frame, text="保存并命名当前任务状态", command=open_save_state_popup)
-save_button.pack(side=tk.LEFT, padx=5)
+        if name != self._old_name and name in self._existing:
+            QMessageBox.warning(self, "警告", f"配置 '{name}' 已存在。")
+            return
 
-create_button(button_frame, "关于", show_about, "")
+        self._result = name
+        self.accept()
 
-# 创建一个带滚动条的框架
-container = ttk.Frame(root)
-container.pack(pady=12, fill='both', expand=True)
+    def result_name(self):
+        return getattr(self, '_result', None)
 
-canvas = tk.Canvas(container, height=300)
-scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview, width=20)
-options_frame = ttk.Frame(canvas)
-options_frame.grid_columnconfigure(0, weight=1, uniform="options")
-options_frame.grid_columnconfigure(1, weight=1, uniform="options")
 
-options_frame.bind(
-    "<Configure>",
-    lambda e: canvas.configure(
-        scrollregion=canvas.bbox("all")
-    )
-)
+# ============================================================
+# 主窗口
+# ============================================================
+class LatexFormattingWindow(QMainWindow):
+    """LatexFormatting 主窗口 — 左栏标签页 + 右栏上下布局"""
 
-canvas.create_window((0, 0), window=options_frame, anchor="nw")
-canvas.configure(yscrollcommand=scrollbar.set)
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(
+            f"{METADATA['title']} 版本: {METADATA['version']} 更新日期：{METADATA['update_date']}"
+        )
+        self.setMinimumSize(720, 500)
 
-canvas.pack(side="left", fill="both", expand=True)
-scrollbar.pack(side="right", fill="y")
+        try:
+            self.setWindowIcon(QIcon("icon.ico"))
+        except Exception:
+            pass
 
-# 添加鼠标滚轮支持
-def on_mouse_wheel(event):
-    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        self.checkboxes: dict[str, QCheckBox] = {}
+        self.current_preset_name = ""
+        self._current_tab = "common"  # 当前加载的用户预设名（空=未保存的自定义状态）
 
-canvas.bind("<Enter>", lambda event: canvas.bind_all("<MouseWheel>", on_mouse_wheel))
-canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
+        # 保存各组复选框的 widget 引用，用于切换显示/隐藏
+        self._tab_pages: dict[str, QWidget] = {}
 
-options = [
-    ("replace_fullwidth_punctuation", "高数B讲义制作用", False),
-    ("add_space_between_cjk_and_english", "在中日韩字符和英文或数字之间添加空格", True),
-    ("remove_extra_newlines", "将多行空行变成单行空行", True),
-    ("repair_display_brackets", "将独立行的 [ ... ] 识别为 \\[ ... \\] 【GPT缺失斜杠】", True),
-    ("repair_inline_parentheses", "将疑似数学 ( ... ) 识别为 \\( ... \\)【GPT缺失斜杠】（可能不奏效）", True),
-    ("repair_inline_parentheses_aggressive", "将 (a)/(x)/(f)/(F) 等识别为 \\( ... \\)【激进】（可能误伤）", True),
-    ("parentheses_to_single_dollar", "行内公式：替换 \\( ... \\) 为 $ ... $ 环境【适合ChatGPT】", True),
-    ("square_brackets_to_dollars", "行间公式：替换 \\[ ... \\] 为 $$ ... $$ 环境【适合ChatGPT】", True),
-    ("equations_to_dollars", "行间公式：替换 equation 为 $$ ... $$ 环境", False),
-    ("square_brackets_to_equations", "行间公式：替换 \\[ ... \\] 为 equation 环境", False),
-    ("dollars_to_equations", "行间公式：替换 $$ ... $$ 为 equation 环境", False),
-    ("format_single_dollar", "行内公式：规范 $ ... $ 环境", False),
-    ("format_parentheses", "行内公式：规范 \\( ... \\) 环境", False),
-    ("format_equations", "行间公式：规范 equation 环境", False),
-    ("format_dollars", "行间公式：规范 $$ ... $$ 环境", False),
-    ("format_square_brackets", "行间公式：规范 \\[ ... \\] 环境", False),
-    ("format_aligns", "行间公式：规范 align 环境", False),
-    ("equations_to_equations_star", "行间公式：若无 label, 替换 equation 为 equation*", False),
-    ("remove_markdown", "一键去除 Markdown 标记（标题/加粗/斜体）", False),
-    ("markdown_to_latex", "一键将 Markdown 标记变成 LaTeX（标题/加粗/斜体）", False),
-]
+        self._setup_ui()
 
-checkbox_vars = {option[0]: tk.BooleanVar(value=option[2]) for option in options}
+        # 自动缩放到刚好容纳所有控件的最小尺寸
+        self.adjustSize()
 
-# 根据 options 的长度是奇数还是偶数来决定是否需要加 1。
-half = len(options) // 2 if len(options) % 2 == 0 else len(options) // 2 + 1
+        # 启动时加载上次关闭时的状态
+        data = load_all_data()
+        last_opts = get_last_state(data)
+        if last_opts:
+            for k, v in last_opts.items():
+                if k in self.checkboxes:
+                    self.checkboxes[k].setChecked(v)
+        self.auto_copy_cb.setChecked(get_auto_copy(data))
+        self.update_preset_combo()
 
-for idx, (key, text, _) in enumerate(options):
-    col = 0 if idx < half else 1
-    row = idx % half
-    create_checkbox(options_frame, text, checkbox_vars[key], row, col)
+    # --------------------------------------------------
+    # UI 构建
+    # --------------------------------------------------
+    def _setup_ui(self):
+        central = QWidget()
+        self.setCentralWidget(central)
+        main_layout = QVBoxLayout(central)
+        main_layout.setContentsMargins(4, 4, 4, 4)
+        main_layout.setSpacing(3)
 
-options_frame.update_idletasks()
-canvas.configure(height=options_frame.winfo_reqheight() + 8)
+        # 主体: 水平分割（顶部无工具栏，全部控件集中在右侧两文本框之间）
+        body = QHBoxLayout()
+        body.setSpacing(4)
 
-# 创建文本框和标签的容器
-text_frame = ttk.Frame(root)
-text_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self._create_left_panel(body)
+        self._create_right_panel(body)
 
-# 创建左侧文本框和标签
-left_frame = ttk.LabelFrame(text_frame, text="原始内容（比如GPT的回答）", padding=10)
-left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-input_text_widget = tk.Text(left_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
-input_text_widget.pack(fill=tk.BOTH, expand=True)
+        main_layout.addLayout(body, stretch=1)
 
-# 创建右侧文本框和标签
-right_frame = ttk.LabelFrame(text_frame, text="修改后的内容", padding=10)
-right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-output_text_widget = tk.Text(right_frame, wrap="word", width=50, height=10, font=("Consolas", 10))
-output_text_widget.pack(fill=tk.BOTH, expand=True)
+    def _create_left_panel(self, parent_layout):
+        """左栏: 标签切换按钮 + 单栏复选框"""
+        left_widget = QWidget()
+        left_widget.setFixedWidth(280)
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(1)
 
-# 添加复选框和按钮到右侧文本框容器
-auto_copy_checkbox_var = tk.BooleanVar(value=True)
-auto_copy_checkbox = ttk.Checkbutton(right_frame, text="修改后内容自动复制", variable=auto_copy_checkbox_var)
-auto_copy_checkbox.pack(side=tk.LEFT, padx=5, pady=5)
+        # 用 QGroupBox 包裹选项区
+        option_group = QGroupBox("格式化选项")
+        option_layout = QVBoxLayout(option_group)
+        option_layout.setContentsMargins(4, 12, 4, 4)
+        option_layout.setSpacing(1)
 
-copy_button = ttk.Button(right_frame, text="复制到剪贴板", command=copy_to_clipboard)
-copy_button.pack(side=tk.LEFT, padx=5, pady=5)
+        # 标签切换按钮行（QPushButton 原生风格，无自定义样式）
+        tab_bar = QHBoxLayout()
+        tab_bar.setSpacing(1)
+        self._tab_buttons = []
+        for label, group_key in TAB_GROUPS:
+            btn = QPushButton(label)
+            btn.setCheckable(True)
+            btn.setFixedHeight(26)
+            btn.clicked.connect(lambda checked, g=group_key: self._switch_tab(g))
+            self._tab_buttons.append(btn)
+            tab_bar.addWidget(btn)
+        option_layout.addLayout(tab_bar)
 
-clear_button = ttk.Button(right_frame, text="清空文本框", command=clear_text_boxes)
-clear_button.pack(side=tk.LEFT, padx=5, pady=5)
+        # 复选框滚动区（单栏）
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setFrameShape(QFrame.NoFrame)
+        self._scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-def on_input_text_change(event):
-    """
-    检测输入文本框的修改，并触发更新输出文本框的内容。
-    """
-    update_output_text()
-    input_text_widget.edit_modified(False)
-    
+        self._scroll_content = QWidget()
+        self._scroll_layout = QVBoxLayout(self._scroll_content)
+        self._scroll_layout.setContentsMargins(2, 2, 2, 2)
+        self._scroll_layout.setSpacing(2)
 
-input_text_widget.bind("<<Modified>>", on_input_text_change)
+        # 为每组创建复选框容器
+        for label, group_key in TAB_GROUPS:
+            page = QWidget()
+            page_layout = QVBoxLayout(page)
+            page_layout.setContentsMargins(0, 0, 0, 0)
+            page_layout.setSpacing(2)
 
-# 启动主循环前加载复选框状态
-load_checkbox_states(LAST_STATE_NAME)
+            group_options = [(k, t, d) for k, t, d, g in OPTIONS if g == group_key]
+            for key, text, default in group_options:
+                cb = QCheckBox(text)
+                cb.setChecked(default)
+                cb.stateChanged.connect(self.on_checkbox_changed)
+                self.checkboxes[key] = cb
+                page_layout.addWidget(cb)
 
-# 窗口关闭时保存状态
-def on_closing():
-    save_checkbox_states(LAST_STATE_NAME)
-    root.quit()
-    root.destroy()
+            page_layout.addStretch()
+            self._tab_pages[group_key] = page
+            self._scroll_layout.addWidget(page)
+            page.setVisible(False)
 
-root.protocol("WM_DELETE_WINDOW", on_closing)
+        self._scroll_layout.addStretch()
+        self._scroll_area.setWidget(self._scroll_content)
+        option_layout.addWidget(self._scroll_area, stretch=1)
 
-# 启动主循环
-root.mainloop()
+        # 默认选中第一个标签
+        self._switch_tab(TAB_GROUPS[0][1])
+
+        left_layout.addWidget(option_group, stretch=1)
+        parent_layout.addWidget(left_widget)
+
+    def _switch_tab(self, group_key: str):
+        """切换标签页"""
+        self._current_tab = group_key
+        for btn, (label, g_key) in zip(self._tab_buttons, TAB_GROUPS):
+            btn.setChecked(g_key == group_key)
+
+        for g_key, page in self._tab_pages.items():
+            page.setVisible(g_key == group_key)
+
+    def _create_right_panel(self, parent_layout):
+        """右栏: 上=合并工具栏 → 输出框 → 剪贴板 → 输入框"""
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(2)
+
+        # ---- 顶部: 合并工具栏（文件操作 + 预设管理 + 关于）----
+        tool_group = QGroupBox("操作")
+        tool_layout = QVBoxLayout(tool_group)
+        tool_layout.setContentsMargins(4, 12, 4, 4)
+        tool_layout.setSpacing(4)
+
+        tool_grid = QGridLayout()
+        tool_grid.setSpacing(4)
+
+        # 第0行: 文件操作
+        self.bulk_file_btn = QPushButton("批量修改文件")
+        self.bulk_file_btn.clicked.connect(self.open_and_replace_files)
+        tool_grid.addWidget(self.bulk_file_btn, 0, 0, 1, 2)
+
+        self.bulk_folder_btn = QPushButton("批量修改文件夹")
+        self.bulk_folder_btn.clicked.connect(self.open_and_replace_files_in_folder)
+        tool_grid.addWidget(self.bulk_folder_btn, 0, 2, 1, 2)
+
+        # 第1行: 预设选择（占两格）+ 另存为 + 重命名
+        self.preset_combo = QComboBox()
+        self.preset_combo.setMinimumWidth(120)
+        self.preset_combo.currentIndexChanged.connect(self.on_preset_selected)
+        tool_grid.addWidget(self.preset_combo, 1, 0, 1, 2)
+
+        save_as_btn = QPushButton("另存为")
+        save_as_btn.clicked.connect(self.save_as_preset)
+        tool_grid.addWidget(save_as_btn, 1, 2)
+
+        rename_btn = QPushButton("重命名")
+        rename_btn.clicked.connect(self.rename_preset)
+        tool_grid.addWidget(rename_btn, 1, 3)
+
+        # 第2行: 删除 + 恢复默认 + 关于
+        delete_btn = QPushButton("删除")
+        delete_btn.clicked.connect(self.delete_preset)
+        tool_grid.addWidget(delete_btn, 2, 0)
+
+        reset_btn = QPushButton("恢复默认")
+        reset_btn.clicked.connect(self.reset_to_defaults)
+        tool_grid.addWidget(reset_btn, 2, 1)
+
+        about_btn = QPushButton("关于")
+        about_btn.setFixedWidth(80)
+        about_btn.clicked.connect(self.show_about)
+        tool_grid.addWidget(about_btn, 2, 2)
+
+        tool_grid.setColumnStretch(4, 1)
+
+        tool_layout.addLayout(tool_grid)
+
+        right_layout.addWidget(tool_group)
+
+        # ---- 输出框 ----
+        out_group = QGroupBox("修改后的内容")
+        out_inner = QVBoxLayout(out_group)
+        out_inner.setContentsMargins(4, 12, 4, 4)
+        self.output_text = QPlainTextEdit()
+        self.output_text.setFont(QFont("Consolas", 10))
+        self.output_text.setReadOnly(True)
+        self.output_text.setPlaceholderText("格式化结果将自动显示在这里...")
+        out_inner.addWidget(self.output_text)
+        right_layout.addWidget(out_group, stretch=3)
+
+        # ---- 剪贴板 ----
+        clip_group = QGroupBox("剪贴板")
+        clip_layout = QHBoxLayout(clip_group)
+        clip_layout.setContentsMargins(4, 12, 4, 4)
+        clip_layout.setSpacing(4)
+
+        self.auto_copy_cb = QCheckBox("修改后内容自动复制")
+        self.auto_copy_cb.setChecked(True)
+        clip_layout.addWidget(self.auto_copy_cb)
+
+        copy_btn = QPushButton("复制到剪贴板")
+        copy_btn.clicked.connect(self.copy_to_clipboard)
+        clip_layout.addWidget(copy_btn)
+
+        clear_btn = QPushButton("清空文本框")
+        clear_btn.clicked.connect(self.clear_text_boxes)
+        clip_layout.addWidget(clear_btn)
+
+        clip_layout.addStretch()
+        right_layout.addWidget(clip_group)
+
+        # ---- 输入框 ----
+        in_group = QGroupBox("原始内容（比如GPT的回答）")
+        in_inner = QVBoxLayout(in_group)
+        in_inner.setContentsMargins(4, 12, 4, 4)
+        self.input_text = QPlainTextEdit()
+        self.input_text.setFont(QFont("Consolas", 10))
+        self.input_text.setPlaceholderText("在此粘贴GPT的回答...")
+        self.input_text.textChanged.connect(self.update_output_text)
+        in_inner.addWidget(self.input_text)
+        right_layout.addWidget(in_group, stretch=2)
+
+        parent_layout.addWidget(right_widget, stretch=1)
+
+    # --------------------------------------------------
+    # 业务逻辑
+    # --------------------------------------------------
+    def update_output_text(self):
+        input_text = self.input_text.toPlainText()
+        if not input_text:
+            return
+        options = self.get_options()
+        modified_text = replace_text(input_text, options)
+        self.output_text.setPlainText(modified_text)
+        if self.auto_copy_cb.isChecked():
+            QApplication.clipboard().setText(modified_text)
+        self.check_state_match()
+
+    def copy_to_clipboard(self):
+        QApplication.clipboard().setText(self.output_text.toPlainText())
+
+    def clear_text_boxes(self):
+        self.input_text.clear()
+        self.output_text.clear()
+
+    def process_files(self, file_paths):
+        if file_paths:
+            replace_text_in_files(file_paths, self.get_options())
+            QMessageBox.information(self, "完成", "所有选中的文件已完成修改。")
+
+    def open_and_replace_files(self):
+        self.process_files(select_files())
+
+    def open_and_replace_files_in_folder(self):
+        folder = select_folder()
+        if folder:
+            self.process_files(get_files_in_folder(folder))
+
+    def show_about(self):
+        msg = (
+            f"{METADATA['title']}\n\n作者: {METADATA['author']}\n"
+            f"版本: {METADATA['version']}\n更新日期：{METADATA['update_date']}\n\n"
+            f"{METADATA['description']}\n\n"
+            f"资源地址：{METADATA['resource_url']}\n联系邮箱：{METADATA['email']}"
+        )
+        QMessageBox.about(self, "关于", msg)
+
+    # --------------------------------------------------
+    # 预设管理
+    # --------------------------------------------------
+    def get_options(self):
+        """获取当前复选框的值。"""
+        return {k: cb.isChecked() for k, cb in self.checkboxes.items()}
+
+    def update_preset_combo(self):
+        """更新预设下拉列表。"""
+        data = load_all_data()
+        names = list_presets(data)
+
+        self.preset_combo.blockSignals(True)
+        self.preset_combo.clear()
+        # 首项: "上次使用的配置"（占位，选中不做任何操作）
+        self.preset_combo.addItem("◆ 上次任务状态", None)
+        for name in names:
+            self.preset_combo.addItem(name, name)
+
+        # 如果当前有选中的预设，设为选中
+        if self.current_preset_name and self.current_preset_name in names:
+            idx = self.preset_combo.findData(self.current_preset_name)
+            if idx >= 0:
+                self.preset_combo.setCurrentIndex(idx)
+        else:
+            self.preset_combo.setCurrentIndex(0)  # 默认显示"上次任务状态"
+
+        self.preset_combo.blockSignals(False)
+
+    def on_preset_selected(self, index):
+        """从下拉列表选择了一个预设。"""
+        if index < 0:
+            return
+        name = self.preset_combo.itemData(index)
+        # "上次任务状态" 或重复选择，不做操作
+        if name is None or name == self.current_preset_name:
+            return
+
+        data = load_all_data()
+        opts = get_preset(data, name)
+        if opts:
+            for k, v in opts.items():
+                if k in self.checkboxes:
+                    self.checkboxes[k].setChecked(v)
+            self.current_preset_name = name
+            # 触发重新处理
+            if self.input_text.toPlainText():
+                self.update_output_text()
+
+    def save_as_preset(self):
+        """将当前配置另存为一个预设。"""
+        data = load_all_data()
+        existing = list_presets(data)
+        dialog = SaveAsDialog(self, existing)
+        if dialog.exec() == QDialog.Accepted:
+            name = dialog.result_name()
+            if name:
+                opts = self.get_options()
+                set_preset(data, name, opts)
+                set_auto_copy(data, self.auto_copy_cb.isChecked())
+                save_all_data(data)
+                self.current_preset_name = name
+                self.update_preset_combo()
+
+    def rename_preset(self):
+        """重命名当前选中的预设。"""
+        if not self.current_preset_name:
+            QMessageBox.information(self, "提示", "请先选择一个预设配置。")
+            return
+
+        data = load_all_data()
+        existing = list_presets(data)
+        dialog = RenameDialog(self, self.current_preset_name, existing)
+        if dialog.exec() == QDialog.Accepted:
+            new_name = dialog.result_name()
+            if new_name and new_name != self.current_preset_name:
+                rename_preset(data, self.current_preset_name, new_name)
+                save_all_data(data)
+                self.current_preset_name = new_name
+                self.update_preset_combo()
+
+    def delete_preset(self):
+        """删除当前选中的预设。"""
+        if not self.current_preset_name:
+            QMessageBox.information(self, "提示", "请先选择一个预设配置。")
+            return
+
+        reply = QMessageBox.question(
+            self, "确认删除",
+            f"确定要删除预设配置 '{self.current_preset_name}' 吗？",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            data = load_all_data()
+            delete_preset(data, self.current_preset_name)
+            save_all_data(data)
+            self.current_preset_name = ""
+            self.update_preset_combo()
+
+    def reset_to_defaults(self):
+        """将所有复选框恢复为默认值。"""
+        for key, _, default, _ in OPTIONS:
+            if key in self.checkboxes:
+                self.checkboxes[key].setChecked(default)
+        self.current_preset_name = ""
+        self.update_preset_combo()
+        if self.input_text.toPlainText():
+            self.update_output_text()
+
+    def check_state_match(self):
+        """检查当前复选框状态是否匹配某个已保存的预设。"""
+        opts = self.get_options()
+        data = load_all_data()
+        for name in list_presets(data):
+            if opts == get_preset(data, name):
+                if name != self.current_preset_name:
+                    self.current_preset_name = name
+                    self.update_preset_combo()
+                return
+        # 不匹配任何预设
+        self.current_preset_name = ""
+        self.update_preset_combo()
+
+    def on_checkbox_changed(self):
+        self.check_state_match()
+        if self.input_text.toPlainText():
+            self.update_output_text()
+
+    def closeEvent(self, event):
+        # 关闭时保存当前状态
+        data = load_all_data()
+        set_last_state(data, self.get_options())
+        set_auto_copy(data, self.auto_copy_cb.isChecked())
+        save_all_data(data)
+        event.accept()
+
+
+# ============================================================
+def main():
+    app = QApplication(sys.argv)
+    app.setApplicationName(METADATA["title"])
+    app.setStyle("Fusion")
+    window = LatexFormattingWindow()
+    window.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
