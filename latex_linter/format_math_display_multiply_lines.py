@@ -3,7 +3,7 @@ import pytest
 
 
 def format_math_display_multiply_lines(match):
-    """
+    r"""
     规范行间公式的内部格式。
     
     Args:

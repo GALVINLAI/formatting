@@ -1,4 +1,4 @@
-"""
+r"""
 行内公式：替换 \( ... \) 为 $ ... $ 环境
 """
 
@@ -6,7 +6,7 @@ import re
 import pytest
 
 def parentheses_to_single_dollar(content):
-    """
+    r"""
     替换 LaTeX 文档中的 \( 和 \) 为 $ 包围。
     
     Args:
